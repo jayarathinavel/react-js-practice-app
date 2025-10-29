@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
+import { useApiNavigate } from './hooks/useApiNavigate';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
@@ -12,22 +13,30 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+function AppContent() {
+  useApiNavigate()
+
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  )
+}
+
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <AppContent />
     </BrowserRouter>
-  );
+  )
 }
