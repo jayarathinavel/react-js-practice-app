@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import TaskList from "../../components/task-manager/TaskList";
 import api from "../../api/api";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function TaskManager() {
     const [tasks, setTasks] = useState([]);
