@@ -5,6 +5,7 @@ import { useApiNavigate } from './hooks/useApiNavigate';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
+import TaskManger from './pages/task-manager/TaskManger';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
@@ -28,6 +29,7 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
+      <Route path="task-manager" element={<TaskManger />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
