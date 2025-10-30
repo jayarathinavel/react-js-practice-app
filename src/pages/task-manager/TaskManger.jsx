@@ -30,6 +30,26 @@ export default function TaskManager() {
         }
     };
 
+    // ADD NEW TASK
+    const handleAddTask = async () => {
+        try {
+            const newTask = {
+                title: "",
+                description: "",
+                status: "in-progress",
+            };
+
+            const res = await api.post("/task-manager", newTask);
+            setTasks((prev) => [res.data, ...prev]); // Add to top of list
+
+            // Immediately start editing title of the new task
+            setEditingTask({ taskId: res.data.id, field: "title" });
+            setEditValue("");
+        } catch (err) {
+            alert(err.response?.data?.message || "Failed to add task");
+        }
+    };
+
     // Editing handlers
     const handleEditStart = (taskId, field, currentValue) => {
         setEditingTask({ taskId, field });
@@ -106,7 +126,17 @@ export default function TaskManager() {
             <div className="container my-4">
                 <div className="card shadow-sm border-0">
                     <div className="card-body">
-                        <h2 className="text-center mb-4 fw-semibold">🗂️ Task Manager</h2>
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                            <h2 className="fw-semibold mb-0">🗂️ Task Manager</h2>
+                            {/* Add Task Button */}
+                            <button
+                                className="btn btn-primary btn-sm"
+                                onClick={handleAddTask}
+                                title="Add a new task"
+                            >
+                                ➕ Add Task
+                            </button>
+                        </div>
 
                         {error && <div className="alert alert-danger text-center">{error}</div>}
 
@@ -139,7 +169,7 @@ export default function TaskManager() {
                                                         onClick={() => handleEditStart(t.id, "title", t.title)}
                                                         title="Click to edit title"
                                                     >
-                                                        {t.title}
+                                                        {t.title || <em>(Untitled Task)</em>}
                                                     </h5>
                                                 )}
 
@@ -169,7 +199,9 @@ export default function TaskManager() {
                                                             {statuses.map((s) => (
                                                                 <button
                                                                     key={s.value}
-                                                                    className={`dropdown-item${t.status === s.value ? " active" : ""}`}
+                                                                    className={`dropdown-item${
+                                                                        t.status === s.value ? " active" : ""
+                                                                    }`}
                                                                     onClick={() => handleStatusChange(t.id, s.value)}
                                                                     style={{ textTransform: "capitalize" }}
                                                                 >
