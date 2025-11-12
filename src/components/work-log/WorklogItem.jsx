@@ -134,6 +134,42 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
         }
     };
 
+    const applyTaskStatusEmojis = (text) => {
+        if (!text) return "";
+        let formattedText = text;
+
+        for (const task of taskEntries) {
+            let emoji = "";
+            switch (task.status?.toLowerCase()) {
+                case "completed":
+                    emoji = " ✅";
+                    break;
+                case "in-progress":
+                    emoji = " 🚧";
+                    break;
+                case "pending":
+                case "todo":
+                    emoji = " ⏳";
+                    break;
+                default:
+                    continue;
+            }
+
+            // Escape regex special characters in the task title
+            const escapedTitle = task.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+            // Match task line (handles bullets, numbering, etc.)
+            const regex = new RegExp(`(^|\\n)([-*]\\s*)(${escapedTitle})(\\s|$)`, "gi");
+
+            // Append emoji at end of the title if not already there
+            formattedText = formattedText.replace(regex, (match, p1, p2, p3, p4) => {
+                if (match.includes(emoji)) return match; // Avoid duplicates
+                return `${p1}${p2}${p3}${emoji}${p4}`;
+            });
+        }
+
+        return formattedText;
+    };
 
     const taskEntries = tasks.filter((task) => task.reference === `worklog-${worklog.id}`)
 
@@ -224,7 +260,9 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                         style={{ cursor: "pointer", minHeight: "80px" }}
                     >
                         {formData[fieldName] ? (
-                            <ReactMarkdown>{formData[fieldName]}</ReactMarkdown>
+                            <ReactMarkdown>
+                                {fieldName === "todo" ? applyTaskStatusEmojis(formData[fieldName]) : formData[fieldName]}
+                            </ReactMarkdown>
                         ) : (
                             <span className="text-muted">{placeholder}</span>
                         )}
