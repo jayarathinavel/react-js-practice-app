@@ -2,7 +2,7 @@ import WorklogItem from "./WorklogItem"
 import api from "../../api/api"
 import PropTypes from "prop-types"
 
-export default function WorklogList({ worklogs, setWorklogs, error }) {
+export default function WorklogList({ worklogs, setWorklogs, tasks, setTasks, error }) {
     const handleAddWorklog = async () => {
         try {
             const newWorklog = {
@@ -33,7 +33,7 @@ export default function WorklogList({ worklogs, setWorklogs, error }) {
             ) : (
                 <ul className="list-unstyled">
                     {worklogs.map((log) => (
-                        <WorklogItem key={log.id} worklog={log} setWorklogs={setWorklogs} />
+                        <WorklogItem key={log.id} worklog={log} setWorklogs={setWorklogs} tasks={tasks} setTasks={setTasks} />
                     ))}
                 </ul>
             )}
@@ -53,4 +53,14 @@ WorklogList.propTypes = {
     ).isRequired,
     setWorklogs: PropTypes.func.isRequired,
     error: PropTypes.string,
+    tasks: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            title: PropTypes.string,
+            description: PropTypes.string,
+            status: PropTypes.string.isRequired,
+            updatedAt: PropTypes.string.isRequired,
+        }),
+    ).isRequired,
+    setTasks: PropTypes.func.isRequired,
 }

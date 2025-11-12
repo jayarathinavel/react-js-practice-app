@@ -2,8 +2,9 @@ import { useState } from "react"
 import ReactMarkdown from "react-markdown"
 import api from "../../api/api"
 import PropTypes from "prop-types"
+import { createTasksFromWorklog, parseTasksFromTodo } from "../../utils/workLogUtils"
 
-export default function WorklogItem({ worklog, setWorklogs }) {
+export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
     const [formData, setFormData] = useState({
         done: worklog.done || "",
         todo: worklog.todo || "",
@@ -11,6 +12,7 @@ export default function WorklogItem({ worklog, setWorklogs }) {
 
     const [savingField, setSavingField] = useState(null)
     const [editingField, setEditingField] = useState(null)
+    const [taskCreationStatus, setTaskCreationStatus] = useState(null)
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -23,6 +25,9 @@ export default function WorklogItem({ worklog, setWorklogs }) {
             const res = await api.patch(`/work-log/${worklog.id}`, {
                 [field]: formData[field],
             })
+            if (field === "todo" && taskEntries.length > 0) {
+                await updateTasks()
+            }
             setWorklogs((prev) =>
                 prev.map((log) => (log.id === worklog.id ? res.data : log))
             )
@@ -34,10 +39,109 @@ export default function WorklogItem({ worklog, setWorklogs }) {
         }
     }
 
+    const createTasks = async () => {
+        setTaskCreationStatus("creating")
+        try {
+            const createdTasks = await createTasksFromWorklog(formData.todo, worklog.id)
+            if (createdTasks.length > 0) {
+                setTasks(prev => [...prev, ...createdTasks])
+                setTaskCreationStatus(`created ${createdTasks.length} task(s)`)
+                setTimeout(() => setTaskCreationStatus(null), 3000)
+            }
+        } catch (err) {
+            console.error("Error creating tasks:", err)
+            setTaskCreationStatus(null)
+        }
+    }
+
+    const deleteTasks = async () => {
+        for (const task of taskEntries) {
+            try {
+                await api.delete(`/task-manager/${task.id}`)
+            } catch (err) {
+                console.error("Error deleting task:", err)
+            }
+        }
+    }
+
+    const updateTasks = async () => {
+        const parsedTasks = parseTasksFromTodo(formData.todo);
+
+        const added = [];
+        const edited = [];
+        const removed = [];
+
+        const maxLength = Math.max(taskEntries.length, parsedTasks.length);
+
+        for (let i = 0; i < maxLength; i++) {
+            const oldTask = taskEntries[i];
+            const newTask = parsedTasks[i];
+
+            // Case 1: New task added (exists in new, not in old)
+            if (!oldTask && newTask) {
+                newTask.reference = `worklog-${worklog.id}`;
+                added.push(newTask);
+                continue;
+            }
+
+            // Case 2: Task removed (exists in old, not in new)
+            if (oldTask && !newTask) {
+                removed.push(oldTask);
+                continue;
+            }
+
+            // Case 3: Both exist at same index — check if edited
+            if (
+                oldTask &&
+                newTask &&
+                (oldTask.title !== newTask.title || oldTask.description !== newTask.description)
+            ) {
+                //TODO: Keep the status unchanged when editing, also check for created time
+                edited.push({ old: oldTask, new: newTask });
+            }
+        }
+
+        for (const addedTask of added) {
+            try {
+                const res = await api.post("/task-manager", addedTask);
+                setTasks((prev) => [...prev, res.data]);
+                setTaskCreationStatus(`created task "${addedTask.title}"`);
+            } catch (err) {
+                console.error("Error adding task:", err);
+            }
+        }
+
+        for (const editedTask of edited) {
+            try {
+                const res = await api.patch(`/task-manager/${editedTask.old.id}`, editedTask.new);
+                setTasks((prev) =>
+                    prev.map((task) => (task.id === res.data.id ? res.data : task))
+                );
+                setTaskCreationStatus(`updated task "${editedTask.new.title}"`);
+            } catch (err) {
+                console.error("Error editing task:", err);
+            }
+        }
+
+        for (const removedTask of removed) {
+            try {
+                await api.delete(`/task-manager/${removedTask.id}`);
+                setTasks((prev) => prev.filter((task) => task.id !== removedTask.id));
+                setTaskCreationStatus(`deleted task "${removedTask.title}"`);
+            } catch (err) {
+                console.error("Error deleting task:", err);
+            }
+        }
+    };
+
+
+    const taskEntries = tasks.filter((task) => task.reference === `worklog-${worklog.id}`)
+
     const handleDelete = async () => {
         if (!globalThis.confirm("Delete this work log entry?")) return
         try {
             await api.delete(`/work-log/${worklog.id}`)
+            await deleteTasks()
             setWorklogs((prev) => prev.filter((log) => log.id !== worklog.id))
         } catch (err) {
             alert(err.response?.data?.message || "Failed to delete work log")
@@ -128,6 +232,7 @@ export default function WorklogItem({ worklog, setWorklogs }) {
                 )}
 
                 {isSaving && <small className="text-muted">Saving...</small>}
+                {(taskCreationStatus && fieldName === "todo") && <small className="text-success ms-2">{taskCreationStatus}</small>}
             </div>
         )
     }
@@ -150,12 +255,23 @@ export default function WorklogItem({ worklog, setWorklogs }) {
                     <small className="text-secondary">
                         Created: {new Date(worklog.createdAt).toLocaleString()}
                     </small>
-                    <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={handleDelete}
-                    >
-                        Delete
-                    </button>
+                    <div>
+                        {taskEntries.length ? (<span className="text-success me-2">Tasks Synced</span>) :
+                            (<button
+                                className="btn btn-sm btn-outline-primary me-2"
+                                onClick={createTasks}
+                                title="Sync Tasks to Task Manager"
+                            >
+                                Sync Tasks
+                            </button>)
+                        }
+                        <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={handleDelete}
+                        >
+                            Delete
+                        </button>
+                    </div>
                 </div>
             </div>
         </li>
@@ -171,4 +287,14 @@ WorklogItem.propTypes = {
         createdAt: PropTypes.string.isRequired,
     }).isRequired,
     setWorklogs: PropTypes.func.isRequired,
+    tasks: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            title: PropTypes.string,
+            description: PropTypes.string,
+            status: PropTypes.string.isRequired,
+            updatedAt: PropTypes.string.isRequired,
+        })
+    ).isRequired,
+    setTasks: PropTypes.func.isRequired
 }
