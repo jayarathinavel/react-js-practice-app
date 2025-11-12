@@ -149,37 +149,37 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
     }
 
     const handleTabKey = (e, field) => {
-    if (e.key === "Tab") {
-        e.preventDefault()
-        const textarea = e.target
-        const start = textarea.selectionStart
-        const end = textarea.selectionEnd
-        const value = formData[field]
-        const lines = value.split("\n")
+        if (e.key === "Tab") {
+            e.preventDefault()
+            const textarea = e.target
+            const start = textarea.selectionStart
+            const end = textarea.selectionEnd
+            const value = formData[field]
+            const lines = value.split("\n")
 
-        const startLine = value.substring(0, start).split("\n").length - 1
-        const endLine = value.substring(0, end).split("\n").length - 1
+            const startLine = value.substring(0, start).split("\n").length - 1
+            const endLine = value.substring(0, end).split("\n").length - 1
 
-        for (let i = startLine; i <= endLine; i++) {
-            if (e.shiftKey) {
-                // Unindent
-                if (lines[i].startsWith("\t")) lines[i] = lines[i].substring(1)
-                else if (lines[i].startsWith("    ")) lines[i] = lines[i].substring(4)
-            } else {
-                // Indent
-                lines[i] = "\t" + lines[i]
+            for (let i = startLine; i <= endLine; i++) {
+                if (e.shiftKey) {
+                    // Unindent
+                    if (lines[i].startsWith("\t")) lines[i] = lines[i].substring(1)
+                    else if (lines[i].startsWith("    ")) lines[i] = lines[i].substring(4)
+                } else {
+                    // Indent
+                    lines[i] = "\t" + lines[i]
+                }
             }
+
+            const newValue = lines.join("\n")
+            setFormData((prev) => ({ ...prev, [field]: newValue }))
+
+            requestAnimationFrame(() => {
+                textarea.selectionStart = start + (e.shiftKey ? -1 : 1)
+                textarea.selectionEnd = end + (e.shiftKey ? -1 : 1)
+            })
         }
-
-        const newValue = lines.join("\n")
-        setFormData((prev) => ({ ...prev, [field]: newValue }))
-
-        requestAnimationFrame(() => {
-            textarea.selectionStart = start + (e.shiftKey ? -1 : 1)
-            textarea.selectionEnd = end + (e.shiftKey ? -1 : 1)
-        })
     }
-}
 
 
     const formatDate = (dateString) => {
