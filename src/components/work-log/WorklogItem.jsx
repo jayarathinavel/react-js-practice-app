@@ -106,6 +106,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                 const res = await api.post("/task-manager", addedTask);
                 setTasks((prev) => [...prev, res.data]);
                 setTaskCreationStatus(`created task "${addedTask.title}"`);
+                setTimeout(() => setTaskCreationStatus(null), 3000)
             } catch (err) {
                 console.error("Error adding task:", err);
             }
@@ -118,6 +119,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                     prev.map((task) => (task.id === res.data.id ? res.data : task))
                 );
                 setTaskCreationStatus(`updated task "${editedTask.new.title}"`);
+                setTimeout(() => setTaskCreationStatus(null), 3000)
             } catch (err) {
                 console.error("Error editing task:", err);
             }
@@ -128,6 +130,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                 await api.delete(`/task-manager/${removedTask.id}`);
                 setTasks((prev) => prev.filter((task) => task.id !== removedTask.id));
                 setTaskCreationStatus(`deleted task "${removedTask.title}"`);
+                setTimeout(() => setTaskCreationStatus(null), 3000)
             } catch (err) {
                 console.error("Error deleting task:", err);
             }
@@ -291,10 +294,10 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
 
                 <div className="d-flex justify-content-between align-items-center mt-3">
                     <small className="text-secondary">
-                        Created: {new Date(worklog.createdAt).toLocaleString()}
+                        Updated: {new Date(worklog.updatedAt).toLocaleString()}
                     </small>
                     <div>
-                        {taskEntries.length ? (<span className="text-success me-2">Tasks Synced</span>) :
+                        {taskEntries.length ? (<span className="text-success me-2" style={{ fontSize: "12px" }}>Tasks Synced</span>) :
                             (<button
                                 className="btn btn-sm btn-outline-primary me-2"
                                 onClick={createTasks}
@@ -322,7 +325,7 @@ WorklogItem.propTypes = {
         date: PropTypes.string.isRequired,
         done: PropTypes.string,
         todo: PropTypes.string,
-        createdAt: PropTypes.string.isRequired,
+        updatedAt: PropTypes.string.isRequired,
     }).isRequired,
     setWorklogs: PropTypes.func.isRequired,
     tasks: PropTypes.arrayOf(
@@ -331,7 +334,6 @@ WorklogItem.propTypes = {
             title: PropTypes.string,
             description: PropTypes.string,
             status: PropTypes.string.isRequired,
-            updatedAt: PropTypes.string.isRequired,
         })
     ).isRequired,
     setTasks: PropTypes.func.isRequired

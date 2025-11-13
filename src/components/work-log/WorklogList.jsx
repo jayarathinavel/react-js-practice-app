@@ -22,7 +22,7 @@ export default function WorklogList({ worklogs, setWorklogs, tasks, setTasks, er
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="fw-semibold mb-0">📅 Work Log</h2>
                 <button className="btn btn-sm btn-outline-primary" onClick={handleAddWorklog}>
-                    ➕ Add Entry
+                    ➕ Add Log
                 </button>
             </div>
 

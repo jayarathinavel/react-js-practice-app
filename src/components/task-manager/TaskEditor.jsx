@@ -6,12 +6,11 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
     const [editValue, setEditValue] = useState(task[field] || "");
     const isWorklogTask = task.reference?.startsWith("worklog-");
 
-
     const handleSave = async () => {
         try {
-            await api.patch(`/task-manager/${task.id}`, { [field]: editValue });
+            const res = await api.patch(`/task-manager/${task.id}`, { [field]: editValue });
             setTasks(prev =>
-                prev.map(t => t.id === task.id ? { ...t, [field]: editValue } : t)
+                prev.map(t => t.id === task.id ? res.data : t)
             );
         } catch (err) {
             alert(err.response?.data?.message || "Update failed");
@@ -66,10 +65,10 @@ TaskEditor.propTypes = {
         description: PropTypes.string,
         status: PropTypes.string.isRequired,
         updatedAt: PropTypes.string.isRequired,
+        reference: PropTypes.string
     }).isRequired,
     field: PropTypes.string.isRequired,
     editingField: PropTypes.string,
     setEditingField: PropTypes.func.isRequired,
     setTasks: PropTypes.func.isRequired,
-    isWorklogTask: PropTypes.bool
 };

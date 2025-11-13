@@ -13,9 +13,9 @@ export default function TaskStatusDropdown({ task, setTasks, getStatusBadgeClass
 
     const handleStatusChange = async (newStatus) => {
         try {
-            await api.patch(`/task-manager/${task.id}`, { status: newStatus });
+            const res = await api.patch(`/task-manager/${task.id}`, { status: newStatus });
             setTasks(prev =>
-                prev.map(t => t.id === task.id ? { ...t, status: newStatus } : t)
+                prev.map(t => t.id === task.id ? res.data : t)
             );
         } catch (err) {
             alert(err.response?.data?.message || "Update failed");
