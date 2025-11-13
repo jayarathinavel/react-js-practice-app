@@ -67,6 +67,11 @@ export default function Navbar() {
                     Task Manager
                   </Link>
                 </li>
+                <li>
+                  <Link className="dropdown-item" to="/work-log">
+                    Work Log
+                  </Link>
+                </li>
               </ul>
             </li>
           </ul>

@@ -26,6 +26,8 @@ export default function TaskItem({ task, setTasks }) {
         }
     };
 
+    const isWorklogTask = task.reference?.startsWith("worklog-");
+
     return (
         <li className="card mb-3 shadow-sm border-light">
             <div className="card-body">
@@ -57,12 +59,24 @@ export default function TaskItem({ task, setTasks }) {
                     <small className="text-secondary">
                         Updated: {new Date(task.updatedAt).toLocaleString()}
                     </small>
-                    <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={handleDelete}
-                    >
-                        Delete
-                    </button>
+                    {
+                        isWorklogTask ? (
+                            <span
+                                className="badge rounded-pill text-bg-secondary"
+                                style={{ fontSize: "0.65rem", padding: "0.25em 0.5em" }}
+                                title="This task is linked to a worklog and cannot be deleted or edited."
+                            >
+                                Worklog Task
+                            </span>
+                        ) : (
+                            <button
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={handleDelete}
+                            >
+                                Delete
+                            </button>
+                        )
+                    }
                 </div>
             </div>
         </li>
@@ -75,6 +89,7 @@ TaskItem.propTypes = {
         title: PropTypes.string,
         description: PropTypes.string,
         status: PropTypes.string.isRequired,
+        reference: PropTypes.string,
         updatedAt: PropTypes.string.isRequired,
     }).isRequired,
     setTasks: PropTypes.func.isRequired,

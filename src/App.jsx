@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import TaskManger from './pages/task-manager/TaskManger';
+import WorkLog from './pages/work-log/WorkLog';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
@@ -30,6 +31,7 @@ function AppContent() {
         }
       />
       <Route path="task-manager" element={<TaskManger />} />
+      <Route path="work-log" element={<WorkLog />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
