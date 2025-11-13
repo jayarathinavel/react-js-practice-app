@@ -27,7 +27,7 @@ export default function TaskStatusDropdown({ task, setTasks, getStatusBadgeClass
         <div style={{ position: "relative" }}>
             <button
                 type="button"
-                className={`badge ${getStatusBadgeClass(task.status)} px-2 py-2 border-0`}
+                className={`badge ${getStatusBadgeClass(task.status)} dropdown-toggle px-2 py-2 border-0`}
                 style={{ cursor: "pointer", textTransform: "capitalize" }}
                 onClick={() => setOpen(!open)}
             >
