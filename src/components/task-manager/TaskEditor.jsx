@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 
 export default function TaskEditor({ task, field, editingField, setEditingField, setTasks }) {
     const [editValue, setEditValue] = useState(task[field] || "");
+    const isWorklogTask = task.reference?.startsWith("worklog-");
+
 
     const handleSave = async () => {
         try {
@@ -18,6 +20,14 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
     };
 
     if (editingField === `${task.id}-${field}`) {
+        if (isWorklogTask) return (
+            <div
+                className={field === "title" ? "fw-semibold" : "text-muted mt-2"}
+                title="This field cannot be edited for worklog tasks."
+            >
+                {task[field] || <em>{field === "title" ? "(Untitled Task)" : "No description"}</em>}
+            </div>
+        );
         const isTextarea = field === "description";
         const Component = isTextarea ? "textarea" : "input";
 
@@ -37,8 +47,12 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
     return (
         <div
             className={field === "title" ? "fw-semibold" : "text-muted mt-2"}
-            style={{ cursor: "pointer", width: "75%" }}
-            onClick={() => setEditingField(`${task.id}-${field}`)}
+            style={{ cursor: isWorklogTask ? "not-allowed" : "pointer", width: "75%" }}
+            onClick={() => {
+                if (!isWorklogTask) setEditingField(`${task.id}-${field}`);
+            }}
+            title={isWorklogTask ? "This field cannot be edited for worklog tasks." : ""}
+
         >
             {task[field] || <em>{field === "title" ? "(Untitled Task)" : "No description"}</em>}
         </div>
@@ -57,4 +71,5 @@ TaskEditor.propTypes = {
     editingField: PropTypes.string,
     setEditingField: PropTypes.func.isRequired,
     setTasks: PropTypes.func.isRequired,
+    isWorklogTask: PropTypes.bool
 };
