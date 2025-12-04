@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 export default function TaskList({ tasks, setTasks, error }) {
     const handleAddTask = async () => {
         try {
-            const newTask = { title: "", description: "", status: "in-progress" };
+            const newTask = { title: "", description: "", status: "pending" };
             const res = await api.post("/task-manager", newTask);
             setTasks(prev => [res.data, ...prev]);
         } catch (err) {
