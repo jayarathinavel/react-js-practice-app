@@ -8,6 +8,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
     const [formData, setFormData] = useState({
         done: worklog.done || "",
         todo: worklog.todo || "",
+        date: worklog.date || "",
     })
 
     const [savingField, setSavingField] = useState(null)
@@ -283,7 +284,33 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
             <div className="card-body">
                 <div className="row mb-3">
                     <div className="col-12">
-                        <h5 className="fw-bold mb-0">{formatDate(worklog.date)}</h5>
+                        {editingField === "date" ? (
+                            <input
+                                type="date"
+                                className="form-control form-control-sm"
+                                name="date"
+                                value={formData.date}
+                                onChange={handleInputChange}
+                                onBlur={() => handleAutoSave("date")}
+                                disabled={savingField === "date"}
+                                style={{
+                                    backgroundColor: savingField === "date" ? "#f9f9f9" : "white",
+                                    opacity: savingField === "date" ? 0.6 : 1,
+                                    maxWidth: "200px",
+                                }}
+                                autoFocus
+                            />
+                        ) : (
+                            <h5
+                                className="fw-bold mb-0"
+                                onClick={() => setEditingField("date")}
+                                style={{ cursor: "pointer" }}
+                                title="Click to edit date"
+                            >
+                                {formatDate(formData.date)}
+                            </h5>
+                        )}
+                        {savingField === "date" && <small className="text-muted ms-2">Saving...</small>}
                     </div>
                 </div>
 
