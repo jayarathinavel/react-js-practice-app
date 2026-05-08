@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000', // NestJS backend
+  baseURL: import.meta.env.VITE_API_URL, // NestJS backend
 });
 
 // Store navigate function globally (will be set by the hook)
