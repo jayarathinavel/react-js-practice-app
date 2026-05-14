@@ -14,6 +14,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
     const [savingField, setSavingField] = useState(null)
     const [editingField, setEditingField] = useState(null)
     const [taskCreationStatus, setTaskCreationStatus] = useState(null)
+    const [deleting, setDeleting] = useState(false)
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -179,12 +180,14 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
 
     const handleDelete = async () => {
         if (!globalThis.confirm("Delete this work log entry?")) return
+        setDeleting(true)
         try {
             await api.delete(`/work-log/${worklog.id}`)
             await deleteTasks()
             setWorklogs((prev) => prev.filter((log) => log.id !== worklog.id))
         } catch (err) {
             alert(err.response?.data?.message || "Failed to delete work log")
+            setDeleting(false)
         }
     }
 
@@ -329,15 +332,31 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                                 className="btn btn-sm btn-outline-primary me-2"
                                 onClick={createTasks}
                                 title="Sync Tasks to Task Manager"
+                                disabled={taskCreationStatus === "creating"}
                             >
-                                Sync Tasks
+                                {taskCreationStatus === "creating" ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        Syncing...
+                                    </>
+                                ) : (
+                                    'Sync Tasks'
+                                )}
                             </button>)
                         }
                         <button
                             className="btn btn-sm btn-outline-danger"
                             onClick={handleDelete}
+                            disabled={deleting}
                         >
-                            Delete
+                            {deleting ? (
+                                <>
+                                    <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    Deleting...
+                                </>
+                            ) : (
+                                'Delete'
+                            )}
                         </button>
                     </div>
                 </div>

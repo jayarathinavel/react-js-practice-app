@@ -8,12 +8,14 @@ export default function WorkLog() {
     const [worklogs, setWorklogs] = useState([])
     const [tasks, setTasks] = useState([])
     const [error, setError] = useState("")
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         fetchWorklogs()
     }, [])
 
     const fetchWorklogs = async () => {
+        setLoading(true)
         try {
             const res = await api.get("/work-log")
             const tasks = await fetchTasks()
@@ -21,6 +23,8 @@ export default function WorkLog() {
             setTasks(tasks)
         } catch (err) {
             setError(err.response?.data?.message || "Failed to fetch work logs")
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -30,7 +34,16 @@ export default function WorkLog() {
             <div className="container my-4">
                 <div className="card shadow-sm border-0">
                     <div className="card-body">
-                        <WorklogList worklogs={worklogs} setWorklogs={setWorklogs} tasks={tasks} setTasks={setTasks} error={error} />
+                        {loading ? (
+                            <div className="text-center py-5">
+                                <div className="spinner-border text-primary" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <p className="mt-3 text-muted">Loading work logs...</p>
+                            </div>
+                        ) : (
+                            <WorklogList worklogs={worklogs} setWorklogs={setWorklogs} tasks={tasks} setTasks={setTasks} error={error} />
+                        )}
                     </div>
                 </div>
             </div>

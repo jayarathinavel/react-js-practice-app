@@ -4,9 +4,11 @@ import PropTypes from "prop-types";
 
 export default function TaskEditor({ task, field, editingField, setEditingField, setTasks }) {
     const [editValue, setEditValue] = useState(task[field] || "");
+    const [saving, setSaving] = useState(false);
     const isWorklogTask = task.reference?.startsWith("worklog-");
 
     const handleSave = async () => {
+        setSaving(true);
         try {
             const res = await api.patch(`/task-manager/${task.id}`, { [field]: editValue });
             setTasks(prev =>
@@ -14,8 +16,10 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
             );
         } catch (err) {
             alert(err.response?.data?.message || "Update failed");
+        } finally {
+            setSaving(false);
+            setEditingField(null);
         }
-        setEditingField(null);
     };
 
     if (editingField === `${task.id}-${field}`) {
@@ -31,15 +35,24 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
         const Component = isTextarea ? "textarea" : "input";
 
         return (
-            <Component
-                type="text"
-                className="form-control form-control-sm mt-2"
-                value={editValue}
-                autoFocus
-                onChange={e => setEditValue(e.target.value)}
-                onBlur={handleSave}
-                onKeyDown={e => e.key === "Enter" && handleSave()}
-            />
+            <div className="position-relative">
+                <Component
+                    type="text"
+                    className="form-control form-control-sm mt-2"
+                    value={editValue}
+                    autoFocus
+                    onChange={e => setEditValue(e.target.value)}
+                    onBlur={handleSave}
+                    onKeyDown={e => e.key === "Enter" && !isTextarea && handleSave()}
+                    disabled={saving}
+                    style={{ opacity: saving ? 0.6 : 1 }}
+                />
+                {saving && (
+                    <small className="text-muted position-absolute" style={{ top: '100%', left: 0 }}>
+                        Saving...
+                    </small>
+                )}
+            </div>
         );
     }
 

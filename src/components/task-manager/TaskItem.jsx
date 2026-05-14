@@ -6,14 +6,17 @@ import PropTypes from "prop-types";
 
 export default function TaskItem({ task, setTasks }) {
     const [editingField, setEditingField] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
     const handleDelete = async () => {
         if (!globalThis.confirm("Delete this task?")) return;
+        setDeleting(true);
         try {
             await api.delete(`/task-manager/${task.id}`);
             setTasks(prev => prev.filter(t => t.id !== task.id));
         } catch (err) {
             alert(err.response?.data?.message || "Failed to delete task");
+            setDeleting(false);
         }
     };
 
@@ -72,8 +75,16 @@ export default function TaskItem({ task, setTasks }) {
                             <button
                                 className="btn btn-sm btn-outline-danger"
                                 onClick={handleDelete}
+                                disabled={deleting}
                             >
-                                Delete
+                                {deleting ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    'Delete'
+                                )}
                             </button>
                         )
                     }

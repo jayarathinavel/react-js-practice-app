@@ -1,15 +1,21 @@
+import { useState } from "react";
 import TaskItem from "./TaskItem";
 import api from "../../api/api";
 import PropTypes from "prop-types";
 
 export default function TaskList({ tasks, setTasks, error }) {
+    const [addingTask, setAddingTask] = useState(false);
+
     const handleAddTask = async () => {
+        setAddingTask(true);
         try {
             const newTask = { title: "", description: "", status: "pending" };
             const res = await api.post("/task-manager", newTask);
             setTasks(prev => [res.data, ...prev]);
         } catch (err) {
             alert(err.response?.data?.message || "Failed to add task");
+        } finally {
+            setAddingTask(false);
         }
     };
 
@@ -17,8 +23,19 @@ export default function TaskList({ tasks, setTasks, error }) {
         <>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="fw-semibold mb-0">📋 Task Manager</h2>
-                <button className="btn btn-sm btn-outline-primary" onClick={handleAddTask}>
-                    📝 Add Task
+                <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={handleAddTask}
+                    disabled={addingTask}
+                >
+                    {addingTask ? (
+                        <>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Adding...
+                        </>
+                    ) : (
+                        <>📝 Add Task</>
+                    )}
                 </button>
             </div>
 
