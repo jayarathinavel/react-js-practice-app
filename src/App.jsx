@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import TaskManger from './pages/task-manager/TaskManger';
 import WorkLog from './pages/work-log/WorkLog';
+import Footer from './components/Footer';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
@@ -41,6 +42,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AppContent />
+      <Footer />
     </BrowserRouter>
   )
 }
