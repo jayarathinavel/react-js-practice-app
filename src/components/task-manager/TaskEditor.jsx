@@ -6,6 +6,7 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
     const [editValue, setEditValue] = useState(task[field] || "");
     const [saving, setSaving] = useState(false);
     const isWorklogTask = task.reference?.startsWith("worklog-");
+    const [originalValue] = useState(task[field] || "");
 
     const handleSave = async () => {
         setSaving(true);
@@ -19,6 +20,30 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
         } finally {
             setSaving(false);
             setEditingField(null);
+        }
+    };
+
+    const handleKeyDown = (e, isTextarea) => {
+        // Escape key - cancel editing without saving
+        if (e.key === "Escape") {
+            e.preventDefault();
+            setEditValue(originalValue);
+            setEditingField(null);
+            return;
+        }
+
+        // Enter key for title (single line)
+        if (e.key === "Enter" && !isTextarea) {
+            e.preventDefault();
+            handleSave();
+            return;
+        }
+
+        // Ctrl+Enter for description (textarea)
+        if (e.key === "Enter" && e.ctrlKey && isTextarea) {
+            e.preventDefault();
+            handleSave();
+            return;
         }
     };
 
@@ -43,7 +68,7 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
                     autoFocus
                     onChange={e => setEditValue(e.target.value)}
                     onBlur={handleSave}
-                    onKeyDown={e => e.key === "Enter" && !isTextarea && handleSave()}
+                    onKeyDown={e => handleKeyDown(e, isTextarea)}
                     disabled={saving}
                     style={{ opacity: saving ? 0.6 : 1 }}
                 />
