@@ -1,5 +1,6 @@
 import { useState } from "react"
 import WorklogItem from "./WorklogItem"
+import WorklogHelp from "./WorklogHelp"
 import api from "../../api/api"
 import PropTypes from "prop-types"
 
@@ -27,20 +28,23 @@ export default function WorklogList({ worklogs, setWorklogs, tasks, setTasks, er
         <>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="fw-semibold mb-0">📅 Work Log</h2>
-                <button
-                    className="btn btn-sm btn-outline-primary"
-                    onClick={handleAddWorklog}
-                    disabled={addingWorklog}
-                >
-                    {addingWorklog ? (
-                        <>
-                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            Adding...
-                        </>
-                    ) : (
-                        <>➕ Add Log</>
-                    )}
-                </button>
+                <div className="d-flex gap-2">
+                    <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={handleAddWorklog}
+                        disabled={addingWorklog}
+                    >
+                        {addingWorklog ? (
+                            <>
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Adding...
+                            </>
+                        ) : (
+                            <>➕ Add Log</>
+                        )}
+                    </button>
+                    <WorklogHelp />
+                </div>
             </div>
 
             {error && <div className="alert alert-danger text-center">{error}</div>}

@@ -21,6 +21,30 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
         setFormData((prev) => ({ ...prev, [name]: value }))
     }
 
+    const handleKeyDown = (e, field) => {
+        // Escape key - cancel editing without saving
+        if (e.key === "Escape") {
+            e.preventDefault()
+            // Restore original value
+            setFormData((prev) => ({
+                ...prev,
+                [field]: worklog[field] || "",
+            }))
+            setEditingField(null)
+            return
+        }
+
+        // Ctrl+Enter - save and exit
+        if (e.key === "Enter" && e.ctrlKey) {
+            e.preventDefault()
+            handleAutoSave(field)
+            return
+        }
+
+        // Handle Tab key for indentation
+        handleTabKey(e, field)
+    }
+
     const handleAutoSave = async (field) => {
         setSavingField(field)
         try {
@@ -250,7 +274,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                         value={formData[fieldName]}
                         onChange={handleInputChange}
                         onBlur={() => handleAutoSave(fieldName)}
-                        onKeyDown={(e) => handleTabKey(e, fieldName)}
+                        onKeyDown={(e) => handleKeyDown(e, fieldName)}
                         rows="5"
                         placeholder={placeholder}
                         disabled={isSaving}
