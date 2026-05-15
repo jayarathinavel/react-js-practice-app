@@ -1,0 +1,189 @@
+/* Navbar Enhancements */
+.navbar {
+  transition: all 0.3s ease;
+}
+
+.navbar-brand {
+  font-size: 1.25rem;
+  transition: transform 0.2s ease;
+}
+
+.navbar-brand:hover {
+  transform: scale(1.05);
+}
+
+.brand-icon {
+  display: inline-block;
+  animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Navigation Links */
+.nav-link {
+  position: relative;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.3s ease;
+  border-radius: 0.25rem;
+  margin: 0 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-icon {
+  font-size: 1.1rem;
+  display: inline-block;
+}
+
+.nav-text {
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #fff, transparent);
+  border-radius: 2px;
+}
+
+/* User Section */
+.user-section {
+  gap: 0.5rem;
+}
+
+.user-greeting {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.user-icon {
+  font-size: 1.2rem;
+  animation: wave 2s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  75% { transform: rotate(-20deg); }
+}
+
+.logout-btn {
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.logout-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background-color: rgba(0, 0, 0, 0.95);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .nav-link {
+    margin: 0.25rem 0;
+    padding: 0.75rem 1rem !important;
+  }
+
+  .nav-link.active::after {
+    display: none;
+  }
+
+  .nav-link.active {
+    border-left: 4px solid #fff;
+  }
+
+  .user-section {
+    flex-direction: column;
+    align-items: stretch !important;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .user-greeting {
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .logout-btn,
+  .user-section .btn {
+    width: 100%;
+  }
+}
+
+/* Tablet Responsiveness */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .nav-text {
+    font-size: 0.9rem;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 575.98px) {
+  .navbar-brand {
+    font-size: 1rem;
+  }
+
+  .brand-icon {
+    font-size: 1.2rem;
+  }
+
+  .nav-icon {
+    font-size: 1rem;
+  }
+
+  .nav-text {
+    font-size: 0.9rem;
+  }
+}
+
+/* Smooth Collapse Animation */
+.navbar-collapse {
+  transition: height 0.3s ease;
+}
+
+/* Focus States for Accessibility */
+.nav-link:focus,
+.btn:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Loading State (Optional) */
+.navbar.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Made with Bob */
