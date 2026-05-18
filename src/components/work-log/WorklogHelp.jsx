@@ -120,6 +120,9 @@ export default function WorklogHelp() {
                                     <li className="mb-2">
                                         • Press <kbd>Escape</kbd> to quickly exit editing without saving changes
                                     </li>
+                                    <li className="mb-2">
+                                        • Work logs are cached for faster loading - click the 🔄 button at the bottom right to refresh manually
+                                    </li>
                                 </ul>
                             </div>
                             <div className="modal-footer">

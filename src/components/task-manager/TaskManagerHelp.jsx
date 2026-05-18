@@ -125,6 +125,9 @@ export default function TaskManagerHelp() {
                                     <li className="mb-2">
                                         • Keep task titles concise and use descriptions for details
                                     </li>
+                                    <li className="mb-2">
+                                        • Tasks are cached for faster loading - click the 🔄 button at the bottom right to refresh manually
+                                    </li>
                                 </ul>
                             </div>
                             <div className="modal-footer">
