@@ -57,6 +57,7 @@ export const apiCache = new ApiCache();
 export const CACHE_KEYS = {
     TASKS: 'tasks',
     WORKLOGS: 'worklogs',
+    DASHBOARD: 'dashboard',
 };
 
 // Made with Bob

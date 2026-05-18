@@ -129,7 +129,7 @@ export default function DashboardHelp() {
                                         • Update task status regularly to keep Dashboard accurate
                                     </li>
                                     <li className="mb-2">
-                                        • Dashboard auto-refreshes when you navigate back to it
+                                        • Dashboard data is cached for faster loading - click the 🔄 button at the bottom to refresh manually
                                     </li>
                                 </ul>
 

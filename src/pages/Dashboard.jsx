@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import DashboardHelp from '../components/dashboard/DashboardHelp';
 import ReactMarkdown from "react-markdown"
+import { apiCache, CACHE_KEYS } from '../utils/apiCache';
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -12,51 +13,78 @@ export default function Dashboard() {
   const [todayLog, setTodayLog] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [tasksRes, worklogsRes] = await Promise.all([
-          api.get('/task-manager'),
-          api.get('/work-log')
-        ]);
-        
-        // Filter non-completed tasks
-        setTasks(tasksRes.data.filter(task => task.status !== 'completed'));
-        
-        // Get today's date in YYYY-MM-DD format
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
-        
-        // Sort all logs by date (most recent first)
-        const allLogs = worklogsRes.data.sort((a, b) =>
-          new Date(b.date) - new Date(a.date)
-        );
-        
-        // Find today's work log
-        const todayWorklog = allLogs.find(log => {
-          const logDate = new Date(log.date).toISOString().split('T')[0];
-          return logDate === todayStr;
-        });
-        
-        // Find the most recent work log before today (last working day)
-        // This handles weekends and holidays automatically
-        const previousWorklog = allLogs.find(log => {
-          const logDate = new Date(log.date).toISOString().split('T')[0];
-          return logDate < todayStr;
-        });
-        
-        setYesterdayLog(previousWorklog);
-        setTodayLog(todayWorklog);
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch data');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
+
+  const fetchData = async (forceRefresh = false) => {
+    // Check cache first if not forcing refresh
+    if (!forceRefresh && apiCache.has(CACHE_KEYS.DASHBOARD)) {
+      const cachedData = apiCache.get(CACHE_KEYS.DASHBOARD);
+      setTasks(cachedData.tasks);
+      setYesterdayLog(cachedData.yesterdayLog);
+      setTodayLog(cachedData.todayLog);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(!forceRefresh);
+    setRefreshing(forceRefresh);
+    try {
+      const [tasksRes, worklogsRes] = await Promise.all([
+        api.get('/task-manager'),
+        api.get('/work-log')
+      ]);
+      
+      // Filter non-completed tasks
+      const filteredTasks = tasksRes.data.filter(task => task.status !== 'completed');
+      
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      
+      // Sort all logs by date (most recent first)
+      const allLogs = worklogsRes.data.sort((a, b) =>
+        new Date(b.date) - new Date(a.date)
+      );
+      
+      // Find today's work log
+      const todayWorklog = allLogs.find(log => {
+        const logDate = new Date(log.date).toISOString().split('T')[0];
+        return logDate === todayStr;
+      });
+      
+      // Find the most recent work log before today (last working day)
+      // This handles weekends and holidays automatically
+      const previousWorklog = allLogs.find(log => {
+        const logDate = new Date(log.date).toISOString().split('T')[0];
+        return logDate < todayStr;
+      });
+      
+      setTasks(filteredTasks);
+      setYesterdayLog(previousWorklog);
+      setTodayLog(todayWorklog);
+
+      // Store in cache
+      apiCache.set(CACHE_KEYS.DASHBOARD, {
+        tasks: filteredTasks,
+        yesterdayLog: previousWorklog,
+        todayLog: todayWorklog
+      });
+      setError('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch data');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchData(true);
+  };
 
   return (
     <div className="bg-light min-vh-100">
@@ -69,7 +97,21 @@ export default function Dashboard() {
           <h2 className="fw-bold mb-0">
             👋 Welcome, <span className="text-primary">{user?.name || 'User'}</span>
           </h2>
-          <DashboardHelp />
+          <div>
+            <button
+              className="btn btn-sm btn-outline-secondary me-1"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              title="Refresh dashboard"
+            >
+              {refreshing ? (
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              ) : (
+                "🔄"
+              )}
+            </button>
+            <DashboardHelp />
+          </div>
         </div>
 
         {loading ? (

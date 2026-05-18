@@ -18,6 +18,7 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
             );
             // Invalidate cache after editing a task
             apiCache.clear(CACHE_KEYS.TASKS);
+            apiCache.clear(CACHE_KEYS.DASHBOARD);
         } catch (err) {
             alert(err.response?.data?.message || "Update failed");
         } finally {

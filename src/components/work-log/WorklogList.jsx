@@ -20,6 +20,7 @@ export default function WorklogList({ worklogs, setWorklogs, tasks, setTasks, er
             setWorklogs((prev) => [res.data, ...prev])
             // Invalidate cache after adding a worklog
             apiCache.clear(CACHE_KEYS.WORKLOGS)
+            apiCache.clear(CACHE_KEYS.DASHBOARD)
         } catch (err) {
             alert(err.response?.data?.message || "Failed to add work log entry")
         } finally {

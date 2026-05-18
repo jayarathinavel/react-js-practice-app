@@ -60,6 +60,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
             )
             // Invalidate cache after editing worklog
             apiCache.clear(CACHE_KEYS.WORKLOGS)
+            apiCache.clear(CACHE_KEYS.DASHBOARD)
         } catch (err) {
             alert(err.response?.data?.message || `Failed to update ${field}`)
         } finally {
@@ -76,9 +77,10 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                 setTasks(prev => [...prev, ...createdTasks])
                 setTaskCreationStatus(`created ${createdTasks.length} task(s)`)
                 setTimeout(() => setTaskCreationStatus(null), 3000)
-                // Invalidate both caches after creating tasks
+                // Invalidate all caches after creating tasks
                 apiCache.clear(CACHE_KEYS.TASKS)
                 apiCache.clear(CACHE_KEYS.WORKLOGS)
+                apiCache.clear(CACHE_KEYS.DASHBOARD)
             }
         } catch (err) {
             console.error("Error creating tasks:", err)
@@ -168,10 +170,11 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
             }
         }
 
-        // Invalidate both caches after updating tasks
+        // Invalidate all caches after updating tasks
         if (added.length > 0 || edited.length > 0 || removed.length > 0) {
             apiCache.clear(CACHE_KEYS.TASKS)
             apiCache.clear(CACHE_KEYS.WORKLOGS)
+            apiCache.clear(CACHE_KEYS.DASHBOARD)
         }
     };
 
@@ -221,9 +224,10 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
             await api.delete(`/work-log/${worklog.id}`)
             await deleteTasks()
             setWorklogs((prev) => prev.filter((log) => log.id !== worklog.id))
-            // Invalidate both caches after deleting worklog
+            // Invalidate all caches after deleting worklog
             apiCache.clear(CACHE_KEYS.TASKS)
             apiCache.clear(CACHE_KEYS.WORKLOGS)
+            apiCache.clear(CACHE_KEYS.DASHBOARD)
         } catch (err) {
             alert(err.response?.data?.message || "Failed to delete work log")
             setDeleting(false)

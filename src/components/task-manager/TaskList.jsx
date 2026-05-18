@@ -16,6 +16,7 @@ export default function TaskList({ tasks, setTasks, error }) {
             setTasks(prev => [res.data, ...prev]);
             // Invalidate cache after adding a task
             apiCache.clear(CACHE_KEYS.TASKS);
+            apiCache.clear(CACHE_KEYS.DASHBOARD);
         } catch (err) {
             alert(err.response?.data?.message || "Failed to add task");
         } finally {

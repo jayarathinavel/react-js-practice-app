@@ -17,6 +17,7 @@ export default function TaskItem({ task, setTasks }) {
             setTasks(prev => prev.filter(t => t.id !== task.id));
             // Invalidate cache after deleting a task
             apiCache.clear(CACHE_KEYS.TASKS);
+            apiCache.clear(CACHE_KEYS.DASHBOARD);
         } catch (err) {
             alert(err.response?.data?.message || "Failed to delete task");
             setDeleting(false);
