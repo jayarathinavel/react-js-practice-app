@@ -2,6 +2,7 @@ import { useState } from "react"
 import WorklogItem from "./WorklogItem"
 import WorklogHelp from "./WorklogHelp"
 import api from "../../api/api"
+import { apiCache, CACHE_KEYS } from "../../utils/apiCache"
 import PropTypes from "prop-types"
 
 export default function WorklogList({ worklogs, setWorklogs, tasks, setTasks, error }) {
@@ -17,6 +18,8 @@ export default function WorklogList({ worklogs, setWorklogs, tasks, setTasks, er
             }
             const res = await api.post("/work-log", newWorklog)
             setWorklogs((prev) => [res.data, ...prev])
+            // Invalidate cache after adding a worklog
+            apiCache.clear(CACHE_KEYS.WORKLOGS)
         } catch (err) {
             alert(err.response?.data?.message || "Failed to add work log entry")
         } finally {

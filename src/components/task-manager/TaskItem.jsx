@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../../api/api";
 import TaskStatusDropdown from "./TaskStatusDropdown";
 import TaskEditor from "./TaskEditor";
+import { apiCache, CACHE_KEYS } from "../../utils/apiCache";
 import PropTypes from "prop-types";
 
 export default function TaskItem({ task, setTasks }) {
@@ -14,6 +15,8 @@ export default function TaskItem({ task, setTasks }) {
         try {
             await api.delete(`/task-manager/${task.id}`);
             setTasks(prev => prev.filter(t => t.id !== task.id));
+            // Invalidate cache after deleting a task
+            apiCache.clear(CACHE_KEYS.TASKS);
         } catch (err) {
             alert(err.response?.data?.message || "Failed to delete task");
             setDeleting(false);

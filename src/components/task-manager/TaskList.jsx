@@ -2,6 +2,7 @@ import { useState } from "react";
 import TaskItem from "./TaskItem";
 import TaskManagerHelp from "./TaskManagerHelp";
 import api from "../../api/api";
+import { apiCache, CACHE_KEYS } from "../../utils/apiCache";
 import PropTypes from "prop-types";
 
 export default function TaskList({ tasks, setTasks, error }) {
@@ -13,6 +14,8 @@ export default function TaskList({ tasks, setTasks, error }) {
             const newTask = { title: "", description: "", status: "pending" };
             const res = await api.post("/task-manager", newTask);
             setTasks(prev => [res.data, ...prev]);
+            // Invalidate cache after adding a task
+            apiCache.clear(CACHE_KEYS.TASKS);
         } catch (err) {
             alert(err.response?.data?.message || "Failed to add task");
         } finally {

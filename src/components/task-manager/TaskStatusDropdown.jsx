@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../api/api";
+import { apiCache, CACHE_KEYS } from "../../utils/apiCache";
 import PropTypes from "prop-types";
 
 export default function TaskStatusDropdown({ task, setTasks, getStatusBadgeClass }) {
@@ -19,6 +20,8 @@ export default function TaskStatusDropdown({ task, setTasks, getStatusBadgeClass
             setTasks(prev =>
                 prev.map(t => t.id === task.id ? res.data : t)
             );
+            // Invalidate cache after changing task status
+            apiCache.clear(CACHE_KEYS.TASKS);
         } catch (err) {
             alert(err.response?.data?.message || "Update failed");
         } finally {

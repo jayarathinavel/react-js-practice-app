@@ -1,6 +1,7 @@
 import { useState } from "react"
 import ReactMarkdown from "react-markdown"
 import api from "../../api/api"
+import { apiCache, CACHE_KEYS } from "../../utils/apiCache"
 import PropTypes from "prop-types"
 import { createTasksFromWorklog, parseTasksFromTodo } from "../../utils/workLogUtils"
 
@@ -57,6 +58,8 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
             setWorklogs((prev) =>
                 prev.map((log) => (log.id === worklog.id ? res.data : log))
             )
+            // Invalidate cache after editing worklog
+            apiCache.clear(CACHE_KEYS.WORKLOGS)
         } catch (err) {
             alert(err.response?.data?.message || `Failed to update ${field}`)
         } finally {
@@ -73,6 +76,9 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                 setTasks(prev => [...prev, ...createdTasks])
                 setTaskCreationStatus(`created ${createdTasks.length} task(s)`)
                 setTimeout(() => setTaskCreationStatus(null), 3000)
+                // Invalidate both caches after creating tasks
+                apiCache.clear(CACHE_KEYS.TASKS)
+                apiCache.clear(CACHE_KEYS.WORKLOGS)
             }
         } catch (err) {
             console.error("Error creating tasks:", err)
@@ -161,6 +167,12 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                 console.error("Error deleting task:", err);
             }
         }
+
+        // Invalidate both caches after updating tasks
+        if (added.length > 0 || edited.length > 0 || removed.length > 0) {
+            apiCache.clear(CACHE_KEYS.TASKS)
+            apiCache.clear(CACHE_KEYS.WORKLOGS)
+        }
     };
 
     const applyTaskStatusEmojis = (text) => {
@@ -209,6 +221,9 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
             await api.delete(`/work-log/${worklog.id}`)
             await deleteTasks()
             setWorklogs((prev) => prev.filter((log) => log.id !== worklog.id))
+            // Invalidate both caches after deleting worklog
+            apiCache.clear(CACHE_KEYS.TASKS)
+            apiCache.clear(CACHE_KEYS.WORKLOGS)
         } catch (err) {
             alert(err.response?.data?.message || "Failed to delete work log")
             setDeleting(false)
