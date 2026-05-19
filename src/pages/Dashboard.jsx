@@ -172,6 +172,19 @@ export default function Dashboard() {
                     </p>
                   ) : (
                     <>
+                      {/* Today's Todo */}
+                      {todayLog && todayLog.todo && (
+                        <div className="border-start border-primary border-3 ps-3 mb-3 bg-white p-3 rounded">
+                          <small className="text-muted d-block mb-2">
+                            📅 Today's Plan ({new Date(todayLog.date).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric'
+                            })})
+                          </small>
+                          <ReactMarkdown>{todayLog.todo}</ReactMarkdown>
+                        </div>
+                      )}
+
                       {/* Previous Working Day's Todo (carried over) */}
                       {yesterdayLog && yesterdayLog.todo && (
                         <div className="border-start border-warning border-3 ps-3 mb-3 bg-white p-3 rounded">
@@ -190,19 +203,6 @@ export default function Dashboard() {
                             })()}
                           </small>
                           <ReactMarkdown>{yesterdayLog.todo}</ReactMarkdown>
-                        </div>
-                      )}
-                      
-                      {/* Today's Todo */}
-                      {todayLog && todayLog.todo && (
-                        <div className="border-start border-primary border-3 ps-3 mb-3 bg-white p-3 rounded">
-                          <small className="text-muted d-block mb-2">
-                            📅 Today's Plan ({new Date(todayLog.date).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric'
-                            })})
-                          </small>
-                          <ReactMarkdown>{todayLog.todo}</ReactMarkdown>
                         </div>
                       )}
                       
