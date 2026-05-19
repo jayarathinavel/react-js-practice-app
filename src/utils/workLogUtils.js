@@ -89,7 +89,7 @@ export function parseTasksFromTodo(todoText) {
           if (currentTask.description) {
             currentTask.description += "\n"
           }
-          currentTask.description += "• " + listContent
+          currentTask.description += "- " + listContent
         }
       }
     }

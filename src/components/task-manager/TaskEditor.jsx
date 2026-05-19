@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import api from "../../api/api";
 import { apiCache, CACHE_KEYS } from "../../utils/apiCache";
 import PropTypes from "prop-types";
@@ -95,7 +96,15 @@ export default function TaskEditor({ task, field, editingField, setEditingField,
             title={isWorklogTask ? "This field cannot be edited for worklog tasks." : ""}
 
         >
-            {task[field] || <em>{field === "title" ? "(Untitled Task)" : "No description"}</em>}
+            {task[field] ? (
+                field === "description" ? (
+                    <ReactMarkdown>{task[field]}</ReactMarkdown>
+                ) : (
+                    task[field]
+                )
+            ) : (
+                <em>{field === "title" ? "(Untitled Task)" : "No description"}</em>
+            )}
         </div>
     );
 }
