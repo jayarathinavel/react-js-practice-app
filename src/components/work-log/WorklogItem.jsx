@@ -207,10 +207,44 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
     // Custom renderer for ReactMarkdown to add clickable status emojis
     const customRenderers = {
         li: ({ children, ...props }) => {
-            // Extract text content from children
-            const textContent = typeof children === 'string'
-                ? children
-                : children?.[0]?.props?.children || '';
+            // Extract only the top-level text content (task title), ignoring nested lists (description)
+            let textContent = '';
+            let textElements = [];
+            let nestedElements = [];
+            
+            if (typeof children === 'string') {
+                textContent = children;
+                textElements = [children];
+            } else if (Array.isArray(children)) {
+                // Separate text content from nested lists
+                for (const child of children) {
+                    if (typeof child === 'string') {
+                        if (!textContent) textContent = child;
+                        textElements.push(child);
+                    } else if (child?.type === 'ul' || child?.type === 'ol') {
+                        // This is a nested list (description)
+                        nestedElements.push(child);
+                    } else if (child?.props?.children && typeof child.props.children === 'string') {
+                        if (!textContent) textContent = child.props.children;
+                        textElements.push(child);
+                    } else {
+                        textElements.push(child);
+                    }
+                }
+            } else if (children?.props?.children) {
+                if (typeof children.props.children === 'string') {
+                    textContent = children.props.children;
+                    textElements = [children];
+                } else if (Array.isArray(children.props.children)) {
+                    // Get first text element from array
+                    for (const child of children.props.children) {
+                        if (typeof child === 'string') {
+                            if (!textContent) textContent = child;
+                            textElements.push(child);
+                        }
+                    }
+                }
+            }
             
             const task = getTaskByTitle(textContent);
             
@@ -218,7 +252,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                 const emoji = getEmojiForStatus(task.status);
                 return (
                     <li {...props}>
-                        {children}
+                        {textElements}
                         {emoji && (
                             <>
                                 {' '}
@@ -229,6 +263,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                                 />
                             </>
                         )}
+                        {nestedElements}
                     </li>
                 );
             }
