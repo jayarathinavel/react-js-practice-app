@@ -1,13 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "../../api/api";
 import TaskStatusDropdown from "./TaskStatusDropdown";
 import TaskEditor from "./TaskEditor";
 import { apiCache, CACHE_KEYS } from "../../utils/apiCache";
 import PropTypes from "prop-types";
 
-export default function TaskItem({ task, setTasks }) {
+export default function TaskItem({ task, setTasks, isHighlighted, setHighlightedTaskId }) {
     const [editingField, setEditingField] = useState(null);
     const [deleting, setDeleting] = useState(false);
+    const taskRef = useRef(null);
+
+    useEffect(() => {
+        if (isHighlighted && taskRef.current) {
+            // Scroll to the task with smooth behavior
+            taskRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            
+            // Clear the highlight after 3 seconds
+            const timer = setTimeout(() => {
+                if (setHighlightedTaskId) {
+                    setHighlightedTaskId(null);
+                }
+            }, 3000);
+            
+            return () => clearTimeout(timer);
+        }
+    }, [isHighlighted, setHighlightedTaskId]);
 
     const handleDelete = async () => {
         if (!globalThis.confirm("Delete this task?")) return;
@@ -37,7 +57,14 @@ export default function TaskItem({ task, setTasks }) {
     const isWorklogTask = task.reference?.startsWith("worklog-");
 
     return (
-        <li className="card mb-3 shadow-sm border-light">
+        <li
+            ref={taskRef}
+            className={`card mb-3 shadow-sm ${isHighlighted ? 'border-primary border-3' : 'border-light'}`}
+            style={{
+                transition: 'all 0.3s ease',
+                backgroundColor: isHighlighted ? '#e7f3ff' : 'white'
+            }}
+        >
             <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center">
                     <TaskEditor
@@ -109,4 +136,6 @@ TaskItem.propTypes = {
         updatedAt: PropTypes.string.isRequired,
     }).isRequired,
     setTasks: PropTypes.func.isRequired,
+    isHighlighted: PropTypes.bool,
+    setHighlightedTaskId: PropTypes.func,
 };

@@ -5,7 +5,7 @@ import api from "../../api/api"
 import { apiCache, CACHE_KEYS } from "../../utils/apiCache"
 import PropTypes from "prop-types"
 
-export default function WorklogList({ worklogs, setWorklogs, tasks, setTasks, error }) {
+export default function WorklogList({ worklogs, setWorklogs, tasks, setTasks, error, highlightedWorklogId, setHighlightedWorklogId }) {
     const [addingWorklog, setAddingWorklog] = useState(false)
 
     const handleAddWorklog = async () => {
@@ -58,7 +58,15 @@ export default function WorklogList({ worklogs, setWorklogs, tasks, setTasks, er
             ) : (
                 <ul className="list-unstyled">
                     {worklogs.map((log) => (
-                        <WorklogItem key={log.id} worklog={log} setWorklogs={setWorklogs} tasks={tasks} setTasks={setTasks} />
+                        <WorklogItem
+                            key={log.id}
+                            worklog={log}
+                            setWorklogs={setWorklogs}
+                            tasks={tasks}
+                            setTasks={setTasks}
+                            isHighlighted={highlightedWorklogId === log.id}
+                            setHighlightedWorklogId={setHighlightedWorklogId}
+                        />
                     ))}
                 </ul>
             )}
@@ -88,4 +96,6 @@ WorklogList.propTypes = {
         }),
     ).isRequired,
     setTasks: PropTypes.func.isRequired,
+    highlightedWorklogId: PropTypes.number,
+    setHighlightedWorklogId: PropTypes.func,
 }

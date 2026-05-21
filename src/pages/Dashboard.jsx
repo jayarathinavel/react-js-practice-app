@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/api';
 import { AuthContext } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
@@ -8,6 +9,7 @@ import { apiCache, CACHE_KEYS } from '../utils/apiCache';
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [allTasks, setAllTasks] = useState([]); // All tasks for matching with worklogs
   const [yesterdayLog, setYesterdayLog] = useState(null);
@@ -90,6 +92,16 @@ export default function Dashboard() {
 
   const handleRefresh = () => {
     fetchData(true);
+  };
+
+  const handleTaskClick = (taskId) => {
+    // Navigate to task manager with the task ID as a query parameter
+    navigate(`/task-manager?taskId=${taskId}`);
+  };
+
+  const handleWorklogTaskClick = (worklogId) => {
+    // Navigate to work log with the worklog ID as a query parameter
+    navigate(`/work-log?worklogId=${worklogId}`);
   };
 
   // Helper functions for status emojis
@@ -208,7 +220,13 @@ export default function Dashboard() {
                     </li>
                   ) : (
                     tasks.map(t => (
-                      <li key={t.id} className="list-group-item d-flex align-items-center">
+                      <li
+                        key={t.id}
+                        className="list-group-item d-flex align-items-center"
+                        onClick={() => handleTaskClick(t.id)}
+                        style={{ cursor: 'pointer' }}
+                        title="Click to view task details"
+                      >
                         <span className="me-2">
                           {t.status === 'in-progress' ? '🚧' : t.status === 'cancelled' ? '❌' : '⏳'}
                         </span>
@@ -245,7 +263,14 @@ export default function Dashboard() {
                     <>
                       {/* Today's Todo */}
                       {todayLog && todayLog.todo && (
-                        <div className="border-start border-primary border-3 ps-3 mb-3 bg-white p-3 rounded">
+                        <div
+                          className="border-start border-primary border-3 ps-3 mb-3 bg-white p-3 rounded"
+                          onClick={() => handleWorklogTaskClick(todayLog.id)}
+                          style={{ cursor: 'pointer', transition: 'background-color 0.2s' }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                          title="Click to view in work log"
+                        >
                           <small className="text-muted d-block mb-2">
                             📅 Today's Plan ({new Date(todayLog.date).toLocaleDateString('en-US', {
                               month: 'short',
@@ -260,7 +285,14 @@ export default function Dashboard() {
 
                       {/* Previous Working Day's Todo (carried over) */}
                       {yesterdayLog && yesterdayLog.todo && (
-                        <div className="border-start border-warning border-3 ps-3 mb-3 bg-white p-3 rounded">
+                        <div
+                          className="border-start border-warning border-3 ps-3 mb-3 bg-white p-3 rounded"
+                          onClick={() => handleWorklogTaskClick(yesterdayLog.id)}
+                          style={{ cursor: 'pointer', transition: 'background-color 0.2s' }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                          title="Click to view in work log"
+                        >
                           <small className="text-muted d-block mb-2">
                             📅 Carried Over from {new Date(yesterdayLog.date).toLocaleDateString('en-US', {
                               weekday: 'short',
@@ -306,7 +338,14 @@ export default function Dashboard() {
                       📭 No previous work log available
                     </p>
                   ) : (
-                    <div className="border-start border-success border-3 ps-3 mb-3 bg-white p-3 rounded">
+                    <div
+                      className="border-start border-success border-3 ps-3 mb-3 bg-white p-3 rounded"
+                      onClick={() => handleWorklogTaskClick(yesterdayLog.id)}
+                      style={{ cursor: 'pointer', transition: 'background-color 0.2s' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                      title="Click to view in work log"
+                    >
                       <small className="text-muted d-block mb-2">
                         📅 {new Date(yesterdayLog.date).toLocaleDateString('en-US', {
                           weekday: 'long',

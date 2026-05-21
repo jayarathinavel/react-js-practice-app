@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import ReactMarkdown from "react-markdown"
 import api from "../../api/api"
 import { apiCache, CACHE_KEYS } from "../../utils/apiCache"
@@ -6,7 +6,7 @@ import PropTypes from "prop-types"
 import { createTasksFromWorklog, parseTasksFromTodo } from "../../utils/workLogUtils"
 import StatusEmojiPopover from "./StatusEmojiPopover"
 
-export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
+export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks, isHighlighted, setHighlightedWorklogId }) {
     const [formData, setFormData] = useState({
         done: worklog.done || "",
         todo: worklog.todo || "",
@@ -17,6 +17,26 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
     const [editingField, setEditingField] = useState(null)
     const [taskCreationStatus, setTaskCreationStatus] = useState(null)
     const [deleting, setDeleting] = useState(false)
+    const worklogRef = useRef(null)
+
+    useEffect(() => {
+        if (isHighlighted && worklogRef.current) {
+            // Scroll to the worklog with smooth behavior
+            worklogRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            })
+            
+            // Clear the highlight after 3 seconds
+            const timer = setTimeout(() => {
+                if (setHighlightedWorklogId) {
+                    setHighlightedWorklogId(null)
+                }
+            }, 3000)
+            
+            return () => clearTimeout(timer)
+        }
+    }, [isHighlighted, setHighlightedWorklogId])
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -383,7 +403,14 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
     }
 
     return (
-        <li className="card mb-3 shadow-sm border-light">
+        <li
+            ref={worklogRef}
+            className={`card mb-3 shadow-sm ${isHighlighted ? 'border-warning border-3' : 'border-light'}`}
+            style={{
+                transition: 'all 0.3s ease',
+                backgroundColor: isHighlighted ? '#fff9e6' : 'white'
+            }}
+        >
             <div className="card-body">
                 <div className="row mb-3">
                     <div className="col-12">
@@ -482,5 +509,7 @@ WorklogItem.propTypes = {
             status: PropTypes.string.isRequired,
         })
     ).isRequired,
-    setTasks: PropTypes.func.isRequired
+    setTasks: PropTypes.func.isRequired,
+    isHighlighted: PropTypes.bool,
+    setHighlightedWorklogId: PropTypes.func,
 }

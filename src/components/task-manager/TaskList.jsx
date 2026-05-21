@@ -11,7 +11,7 @@ const STORAGE_KEYS = {
     FILTER_STATUS: 'taskManager_filterStatus'
 };
 
-export default function TaskList({ tasks, setTasks, error }) {
+export default function TaskList({ tasks, setTasks, error, highlightedTaskId, setHighlightedTaskId }) {
     const [addingTask, setAddingTask] = useState(false);
     
     // Initialize state from localStorage or use defaults
@@ -130,7 +130,13 @@ export default function TaskList({ tasks, setTasks, error }) {
             ) : (
                 <ul className="list-unstyled">
                     {displayedTasks.map(t => (
-                        <TaskItem key={t.id} task={t} setTasks={setTasks} />
+                        <TaskItem
+                            key={t.id}
+                            task={t}
+                            setTasks={setTasks}
+                            isHighlighted={highlightedTaskId === t.id}
+                            setHighlightedTaskId={setHighlightedTaskId}
+                        />
                     ))}
                 </ul>
             )}
@@ -150,4 +156,6 @@ TaskList.propTypes = {
     ).isRequired,
     setTasks: PropTypes.func.isRequired,
     error: PropTypes.string,
+    highlightedTaskId: PropTypes.number,
+    setHighlightedTaskId: PropTypes.func,
 };

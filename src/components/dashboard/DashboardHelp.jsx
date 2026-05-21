@@ -49,7 +49,8 @@ export default function DashboardHelp() {
                                             <li>Includes tasks with "Pending" and "In Progress" status</li>
                                             <li>Status badges: ⏳ Pending, 🚧 In Progress</li>
                                             <li>Cancelled tasks are excluded from this view</li>
-                                            <li>Click on Task Manager to manage these tasks</li>
+                                            <li><strong>🖱️ Click any task</strong> to navigate to Task Manager and view details</li>
+                                            <li>The selected task will be highlighted and scrolled into view</li>
                                         </ul>
                                     </li>
                                     <li className="mb-3">
@@ -60,6 +61,8 @@ export default function DashboardHelp() {
                                             <li>Color-coded: Yellow border for carried-over, Blue border for today's new tasks</li>
                                             <li>Helps you start your day with clear objectives</li>
                                             <li>Sync these items to Task Manager for tracking</li>
+                                            <li><strong>🖱️ Click the entire card</strong> to navigate to Work Log and view the full entry</li>
+                                            <li>The selected worklog entry will be highlighted and scrolled into view</li>
                                         </ul>
                                     </li>
                                     <li className="mb-3">
@@ -71,6 +74,8 @@ export default function DashboardHelp() {
                                             <li>After vacation, shows last working day before vacation</li>
                                             <li>Displays contextual labels: "Yesterday", "Last Friday", "X days ago"</li>
                                             <li>Useful for daily standups and status updates</li>
+                                            <li><strong>🖱️ Click the entire card</strong> to navigate to Work Log and view the full entry</li>
+                                            <li>The selected worklog entry will be highlighted and scrolled into view</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -114,11 +119,27 @@ export default function DashboardHelp() {
                                     </li>
                                 </ul>
 
+                                {/* Navigation Features */}
+                                <h6 className="fw-bold mb-3">🖱️ Interactive Navigation</h6>
+                                <div className="alert alert-primary mb-3">
+                                    <strong>Click to Navigate:</strong>
+                                    <ul className="mb-0 mt-2">
+                                        <li><strong>Pending Tasks:</strong> Click any individual task to jump to Task Manager</li>
+                                        <li><strong>What's Planned Today:</strong> Click the entire card section to jump to Work Log</li>
+                                        <li><strong>What Was Done Yesterday:</strong> Click the entire card to jump to Work Log</li>
+                                        <li>Selected items are automatically highlighted and scrolled into view</li>
+                                        <li>Highlights fade after 3 seconds for better focus</li>
+                                    </ul>
+                                </div>
+
                                 {/* Tips Section */}
                                 <h6 className="fw-bold mb-3">💡 Tips</h6>
                                 <ul className="list-unstyled">
                                     <li className="mb-2">
                                         • Start your day by reviewing the Dashboard
+                                    </li>
+                                    <li className="mb-2">
+                                        • Click on sections to quickly navigate and view full details
                                     </li>
                                     <li className="mb-2">
                                         • Use Work Log to document daily progress
@@ -130,7 +151,7 @@ export default function DashboardHelp() {
                                         • Update task status regularly to keep Dashboard accurate
                                     </li>
                                     <li className="mb-2">
-                                        • Dashboard data is cached for faster loading - click the 🔄 button at the bottom to refresh manually
+                                        • Dashboard data is cached for faster loading - click the 🔄 button to refresh manually
                                     </li>
                                 </ul>
 

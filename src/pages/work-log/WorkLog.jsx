@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useSearchParams } from "react-router-dom"
 import Navbar from "../../components/Navbar"
 import WorklogList from "../../components/work-log/WorklogList"
 import api from "../../api/api"
@@ -6,15 +7,29 @@ import { fetchTasks } from "../../utils/taskMangerUtils"
 import { apiCache, CACHE_KEYS } from "../../utils/apiCache"
 
 export default function WorkLog() {
+    const [searchParams, setSearchParams] = useSearchParams()
     const [worklogs, setWorklogs] = useState([])
     const [tasks, setTasks] = useState([])
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
+    const [highlightedWorklogId, setHighlightedWorklogId] = useState(null)
 
     useEffect(() => {
         fetchWorklogs()
     }, [])
+
+    useEffect(() => {
+        // Check if there's a worklogId in the URL
+        const worklogId = searchParams.get('worklogId')
+        if (worklogId) {
+            setHighlightedWorklogId(parseInt(worklogId, 10))
+            // Clear the query parameter after a short delay
+            setTimeout(() => {
+                setSearchParams({})
+            }, 100)
+        }
+    }, [searchParams, setSearchParams])
 
     const fetchWorklogs = async (forceRefresh = false) => {
         // Check cache first if not forcing refresh
@@ -66,7 +81,15 @@ export default function WorkLog() {
                             </div>
                         ) : (
                             <>
-                                <WorklogList worklogs={worklogs} setWorklogs={setWorklogs} tasks={tasks} setTasks={setTasks} error={error} />
+                                <WorklogList
+                                    worklogs={worklogs}
+                                    setWorklogs={setWorklogs}
+                                    tasks={tasks}
+                                    setTasks={setTasks}
+                                    error={error}
+                                    highlightedWorklogId={highlightedWorklogId}
+                                    setHighlightedWorklogId={setHighlightedWorklogId}
+                                />
                                 <div className="d-flex justify-content-end mt-3">
                                     <button
                                         className="btn"

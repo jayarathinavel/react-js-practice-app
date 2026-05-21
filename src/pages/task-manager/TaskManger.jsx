@@ -1,18 +1,33 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import TaskList from "../../components/task-manager/TaskList";
 import api from "../../api/api";
 import { apiCache, CACHE_KEYS } from "../../utils/apiCache";
 
 export default function TaskManager() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [tasks, setTasks] = useState([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [highlightedTaskId, setHighlightedTaskId] = useState(null);
 
     useEffect(() => {
         fetchTasks();
     }, []);
+
+    useEffect(() => {
+        // Check if there's a taskId in the URL
+        const taskId = searchParams.get('taskId');
+        if (taskId) {
+            setHighlightedTaskId(parseInt(taskId, 10));
+            // Clear the query parameter after a short delay
+            setTimeout(() => {
+                setSearchParams({});
+            }, 100);
+        }
+    }, [searchParams, setSearchParams]);
 
     const fetchTasks = async (forceRefresh = false) => {
         // Check cache first if not forcing refresh
@@ -62,6 +77,8 @@ export default function TaskManager() {
                                     tasks={tasks}
                                     setTasks={setTasks}
                                     error={error}
+                                    highlightedTaskId={highlightedTaskId}
+                                    setHighlightedTaskId={setHighlightedTaskId}
                                 />
                                 <div className="d-flex justify-content-end mt-3">
                                     <button
