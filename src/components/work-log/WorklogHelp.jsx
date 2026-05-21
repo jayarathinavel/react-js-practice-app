@@ -102,7 +102,10 @@ export default function WorklogHelp() {
                                         </ul>
                                     </li>
                                     <li className="mb-2">
-                                        <strong>🗑️ Delete:</strong> Click "Delete" to remove a work log entry and all associated tasks.
+                                        <strong>🔄 Change Status:</strong> Click on any status emoji to open a popover with other status options. Select a new status to update the task directly from the worklog.
+                                    </li>
+                                    <li className="mb-2">
+                                        <strong>️ Delete:</strong> Click "Delete" to remove a work log entry and all associated tasks.
                                     </li>
                                 </ul>
 
@@ -113,7 +116,10 @@ export default function WorklogHelp() {
                                         • Use bullet points (<code>-</code>) in Todo field for better task tracking
                                     </li>
                                     <li className="mb-2">
-                                        • Edit synced tasks directly in Task Manager to update their status
+                                        • Click status emojis to quickly change task status without leaving the worklog
+                                    </li>
+                                    <li className="mb-2">
+                                        • You can also edit synced tasks directly in Task Manager to update their status
                                     </li>
                                     <li className="mb-2">
                                         • Changes to synced todo items automatically update linked tasks
