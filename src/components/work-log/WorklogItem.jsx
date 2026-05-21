@@ -5,6 +5,7 @@ import { apiCache, CACHE_KEYS } from "../../utils/apiCache"
 import PropTypes from "prop-types"
 import { createTasksFromWorklog, parseTasksFromTodo } from "../../utils/workLogUtils"
 import StatusEmojiPopover from "./StatusEmojiPopover"
+import { formatMarkdownForClipboard } from "../../utils/workLogUtils"
 
 export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks, isHighlighted, setHighlightedWorklogId }) {
     const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks, isH
     const [editingField, setEditingField] = useState(null)
     const [taskCreationStatus, setTaskCreationStatus] = useState(null)
     const [deleting, setDeleting] = useState(false)
+    const [showToast, setShowToast] = useState(false)
     const worklogRef = useRef(null)
 
     useEffect(() => {
@@ -355,6 +357,32 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks, isH
         })
     }
 
+    const handleCopyToClipboard = async (fieldName) => {
+        const text = formData[fieldName]
+        if (!text || !text.trim()) {
+            return
+        }
+
+        try {
+            // Format the text with bullets and emojis
+            const formattedText = formatMarkdownForClipboard(
+                text,
+                fieldName === "todo" ? taskEntries : []
+            )
+            
+            await navigator.clipboard.writeText(formattedText)
+            
+            // Show toast notification
+            setShowToast(true)
+            setTimeout(() => {
+                setShowToast(false)
+            }, 2000)
+        } catch (err) {
+            console.error("Failed to copy to clipboard:", err)
+            alert("Failed to copy to clipboard")
+        }
+    }
+
     const renderMarkdownField = (fieldName, label, placeholder) => {
         const isEditing = editingField === fieldName
         const isSaving = savingField === fieldName
@@ -381,17 +409,55 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks, isH
                         autoFocus
                     />
                 ) : (
-                    <div
-                        className="border rounded p-2 bg-light"
-                        onClick={() => setEditingField(fieldName)}
-                        style={{ cursor: "pointer", minHeight: "80px" }}
-                    >
-                        {formData[fieldName] ? (
-                            <ReactMarkdown components={fieldName === "todo" && taskEntries.length > 0 ? customRenderers : {}}>
-                                {formData[fieldName]}
-                            </ReactMarkdown>
-                        ) : (
-                            <span className="text-muted">{placeholder}</span>
+                    <div style={{ position: "relative", paddingBottom: "4px" }}>
+                        <div
+                            className="border rounded p-2 bg-light"
+                            onClick={() => setEditingField(fieldName)}
+                            style={{ cursor: "pointer", minHeight: "80px", paddingBottom: "32px" }}
+                        >
+                            {formData[fieldName] ? (
+                                <ReactMarkdown components={fieldName === "todo" && taskEntries.length > 0 ? customRenderers : {}}>
+                                    {formData[fieldName]}
+                                </ReactMarkdown>
+                            ) : (
+                                <span className="text-muted">{placeholder}</span>
+                            )}
+                        </div>
+                        {!isEditing && formData[fieldName] && (
+                            <button
+                                className="btn btn-link p-0"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleCopyToClipboard(fieldName)
+                                }}
+                                title="Copy to clipboard"
+                                style={{
+                                    position: "absolute",
+                                    bottom: "12px",
+                                    right: "12px",
+                                    background: "none",
+                                    border: "none",
+                                    color: "#6c757d",
+                                    opacity: "0.6",
+                                    transition: "all 0.2s",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center"
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.opacity = "1"
+                                    e.currentTarget.style.color = "#495057"
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.opacity = "0.6"
+                                    e.currentTarget.style.color = "#6c757d"
+                                }}
+                            >
+                                <svg width="16" height="16"  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 8V5.2C8 4.0799 8 3.51984 8.21799 3.09202C8.40973 2.71569 8.71569 2.40973 9.09202 2.21799C9.51984 2 10.0799 2 11.2 2H18.8C19.9201 2 20.4802 2 20.908 2.21799C21.2843 2.40973 21.5903 2.71569 21.782 3.09202C22 3.51984 22 4.0799 22 5.2V12.8C22 13.9201 22 14.4802 21.782 14.908C21.5903 15.2843 21.2843 15.5903 20.908 15.782C20.4802 16 19.9201 16 18.8 16H16M5.2 22H12.8C13.9201 22 14.4802 22 14.908 21.782C15.2843 21.5903 15.5903 21.2843 15.782 20.908C16 20.4802 16 19.9201 16 18.8V11.2C16 10.0799 16 9.51984 15.782 9.09202C15.5903 8.71569 15.2843 8.40973 14.908 8.21799C14.4802 8 13.9201 8 12.8 8H5.2C4.0799 8 3.51984 8 3.09202 8.21799C2.71569 8.40973 2.40973 8.71569 2.21799 9.09202C2 9.51984 2 10.0799 2 11.2V18.8C2 19.9201 2 20.4802 2.21799 20.908C2.40973 21.2843 2.71569 21.5903 3.09202 21.782C3.51984 22 4.07989 22 5.2 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
                         )}
                     </div>
                 )}
@@ -403,15 +469,16 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks, isH
     }
 
     return (
-        <li
-            ref={worklogRef}
-            className={`card mb-3 shadow-sm ${isHighlighted ? 'border-warning border-3' : 'border-light'}`}
-            style={{
-                transition: 'all 0.3s ease',
-                backgroundColor: isHighlighted ? '#fff9e6' : 'white'
-            }}
-        >
-            <div className="card-body">
+        <>
+            <li
+                ref={worklogRef}
+                className={`card mb-3 shadow-sm ${isHighlighted ? 'border-warning border-3' : 'border-light'}`}
+                style={{
+                    transition: 'all 0.3s ease',
+                    backgroundColor: isHighlighted ? '#fff9e6' : 'white'
+                }}
+            >
+                <div className="card-body">
                 <div className="row mb-3">
                     <div className="col-12">
                         {editingField === "date" ? (
@@ -454,9 +521,9 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks, isH
                         Updated: {new Date(worklog.updatedAt).toLocaleString()}
                     </small>
                     <div>
-                        {taskEntries.length ? (<span className="text-success me-2" style={{ fontSize: "12px" }}>Tasks Synced</span>) :
+                        {taskEntries.length ? (<span className="text-success m-2" style={{ fontSize: "12px" }}>Tasks Synced</span>) :
                             (<button
-                                className="btn btn-sm btn-outline-primary me-2"
+                                className="btn btn-sm btn-outline-primary m-2"
                                 onClick={createTasks}
                                 title="Sync Tasks to Task Manager"
                                 disabled={taskCreationStatus === "creating"}
@@ -472,7 +539,7 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks, isH
                             </button>)
                         }
                         <button
-                            className="btn btn-sm btn-outline-danger"
+                            className="btn btn-sm btn-outline-danger m-2"
                             onClick={handleDelete}
                             disabled={deleting}
                         >
@@ -489,6 +556,28 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks, isH
                 </div>
             </div>
         </li>
+        
+        {/* Toast notification */}
+        {showToast && (
+            <div
+                style={{
+                    position: 'fixed',
+                    bottom: '20px',
+                    backgroundColor: '#28a745',
+                    color: 'white',
+                    padding: '12px 24px',
+                    borderRadius: '4px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    zIndex: 9999,
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    animation: 'fadeIn 0.3s ease-in-out'
+                }}
+            >
+                ✓ Copied to clipboard
+            </div>
+        )}
+    </>
     )
 }
 
@@ -513,3 +602,4 @@ WorklogItem.propTypes = {
     isHighlighted: PropTypes.bool,
     setHighlightedWorklogId: PropTypes.func,
 }
+

@@ -176,7 +176,7 @@ export default function Dashboard() {
           </h2>
           <div>
             <button
-              className="btn btn-sm btn-outline-secondary me-1"
+              className="btn btn-sm btn-outline-secondary m-1"
               onClick={handleRefresh}
               disabled={refreshing}
               title="Refresh dashboard"

@@ -102,3 +102,76 @@ export function parseTasksFromTodo(todoText) {
 
   return tasks
 }
+
+/**
+ * Formats markdown text for clipboard with proper bullets and emojis
+ * Converts markdown list items to plain text with bullets
+ * @param {string} text - The markdown text to format
+ * @param {Array} tasks - Optional array of tasks to include status emojis
+ * @returns {string} - Formatted text for clipboard
+ */
+export function formatMarkdownForClipboard(text, tasks = []) {
+  if (!text || !text.trim()) return ""
+
+  const lines = text.split("\n")
+  const formattedLines = []
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (!trimmed) {
+      formattedLines.push("")
+      continue
+    }
+
+    // Check for unordered list markers (-, *, •)
+    const unorderedMatch = trimmed.match(/^[-*•]\s+(.+)$/)
+    if (unorderedMatch) {
+      const content = unorderedMatch[1]
+      
+      // Check if this task has a status emoji
+      let emoji = ""
+      if (tasks.length > 0) {
+        const task = tasks.find(t => {
+          const normalizedTaskTitle = t.title.trim().toLowerCase()
+          const normalizedContent = content.trim().toLowerCase()
+          return normalizedTaskTitle === normalizedContent
+        })
+        
+        if (task) {
+          switch (task.status?.toLowerCase()) {
+            case "completed":
+              emoji = " ✅"
+              break
+            case "in-progress":
+              emoji = " 🚧"
+              break
+            case "pending":
+            case "todo":
+              emoji = " ⏳"
+              break
+            case "cancelled":
+              emoji = " ❌"
+              break
+          }
+        }
+      }
+      
+      formattedLines.push(`• ${content}${emoji}`)
+      continue
+    }
+
+    // Check for ordered list markers (1., 2., etc.)
+    const orderedMatch = trimmed.match(/^(\d+)\.\s+(.+)$/)
+    if (orderedMatch) {
+      const number = orderedMatch[1]
+      const content = orderedMatch[2]
+      formattedLines.push(`${number}. ${content}`)
+      continue
+    }
+
+    // Regular text
+    formattedLines.push(trimmed)
+  }
+
+  return formattedLines.join("\n")
+}
