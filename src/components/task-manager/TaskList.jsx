@@ -83,7 +83,7 @@ export default function TaskList({ tasks, setTasks, error }) {
                     <span className="text-muted small" style={{ fontSize: '0.85rem' }}>🔄 Sort:</span>
                     <select
                         className="form-select form-select-sm border-0 bg-transparent"
-                        style={{ width: 'auto', fontSize: '0.85rem', padding: '0.25rem 1.5rem 0.25rem 0.5rem' }}
+                        style={{ width: 'auto', fontSize: '0.85rem', padding: '0.25rem 2rem 0.25rem 0.5rem' }}
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
                         aria-label="Sort tasks"
@@ -99,7 +99,7 @@ export default function TaskList({ tasks, setTasks, error }) {
                     <span className="text-muted small" style={{ fontSize: '0.85rem' }}>🔍 Filter:</span>
                     <select
                         className="form-select form-select-sm border-0 bg-transparent"
-                        style={{ width: 'auto', fontSize: '0.85rem', padding: '0.25rem 1.5rem 0.25rem 0.5rem' }}
+                        style={{ width: 'auto', fontSize: '0.85rem', padding: '0.25rem 2rem 0.25rem 0.5rem' }}
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
                         aria-label="Filter tasks by status"

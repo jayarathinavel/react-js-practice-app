@@ -9,6 +9,7 @@ import { apiCache, CACHE_KEYS } from '../utils/apiCache';
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
+  const [allTasks, setAllTasks] = useState([]); // All tasks for matching with worklogs
   const [yesterdayLog, setYesterdayLog] = useState(null);
   const [todayLog, setTodayLog] = useState(null);
   const [error, setError] = useState('');
@@ -24,6 +25,7 @@ export default function Dashboard() {
     if (!forceRefresh && apiCache.has(CACHE_KEYS.DASHBOARD)) {
       const cachedData = apiCache.get(CACHE_KEYS.DASHBOARD);
       setTasks(cachedData.tasks);
+      setAllTasks(cachedData.allTasks || []);
       setYesterdayLog(cachedData.yesterdayLog);
       setTodayLog(cachedData.todayLog);
       setLoading(false);
@@ -38,7 +40,10 @@ export default function Dashboard() {
         api.get('/work-log')
       ]);
       
-      // Filter non-completed and non-cancelled tasks
+      // Store all tasks for worklog matching
+      setAllTasks(tasksRes.data);
+      
+      // Filter non-completed and non-cancelled tasks for pending tasks section
       const filteredTasks = tasksRes.data.filter(task => task.status !== 'completed' && task.status !== 'cancelled');
       
       // Get today's date in YYYY-MM-DD format
@@ -70,6 +75,7 @@ export default function Dashboard() {
       // Store in cache
       apiCache.set(CACHE_KEYS.DASHBOARD, {
         tasks: filteredTasks,
+        allTasks: tasksRes.data,
         yesterdayLog: previousWorklog,
         todayLog: todayWorklog
       });
@@ -85,6 +91,65 @@ export default function Dashboard() {
   const handleRefresh = () => {
     fetchData(true);
   };
+
+  // Helper functions for status emojis
+  const getTaskByTitle = (title, worklogId) => {
+    // Find task that matches the title and is linked to this worklog
+    return allTasks.find(task => {
+      const normalizedTaskTitle = task.title.trim().toLowerCase();
+      const normalizedTitle = title.trim().toLowerCase();
+      const matchesTitle = normalizedTaskTitle === normalizedTitle;
+      const matchesWorklog = task.reference === `worklog-${worklogId}`;
+      return matchesTitle && matchesWorklog;
+    });
+  };
+
+  const getEmojiForStatus = (status) => {
+    switch (status?.toLowerCase()) {
+      case "completed":
+        return "✅";
+      case "in-progress":
+        return "🚧";
+      case "pending":
+      case "todo":
+        return "⏳";
+      case "cancelled":
+        return "❌";
+      default:
+        return "";
+    }
+  };
+
+  // Custom renderer for ReactMarkdown to add status emojis (read-only)
+  const createCustomRenderers = (worklogId) => ({
+    li: ({ children, ...props }) => {
+      // Extract text content from children
+      const textContent = typeof children === 'string'
+        ? children
+        : children?.[0]?.props?.children || '';
+      
+      const task = getTaskByTitle(textContent, worklogId);
+      
+      if (task) {
+        const emoji = getEmojiForStatus(task.status);
+        return (
+          <li {...props}>
+            {children}
+            {emoji && (
+              <span
+                style={{ marginLeft: '4px' }}
+                title={`Status: ${task.status}`}
+              >
+                {emoji}
+              </span>
+            )}
+          </li>
+        );
+      }
+      
+      return <li {...props}>{children}</li>;
+    }
+  });
 
   return (
     <div className="bg-light min-vh-100">
@@ -187,7 +252,9 @@ export default function Dashboard() {
                               day: 'numeric'
                             })})
                           </small>
-                          <ReactMarkdown>{todayLog.todo}</ReactMarkdown>
+                          <ReactMarkdown components={createCustomRenderers(todayLog.id)}>
+                            {todayLog.todo}
+                          </ReactMarkdown>
                         </div>
                       )}
 
@@ -208,7 +275,9 @@ export default function Dashboard() {
                               return '';
                             })()}
                           </small>
-                          <ReactMarkdown>{yesterdayLog.todo}</ReactMarkdown>
+                          <ReactMarkdown components={createCustomRenderers(yesterdayLog.id)}>
+                            {yesterdayLog.todo}
+                          </ReactMarkdown>
                         </div>
                       )}
                       
