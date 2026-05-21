@@ -45,9 +45,10 @@ export default function DashboardHelp() {
                                     <li className="mb-3">
                                         <strong>📝 Pending Tasks</strong>
                                         <ul className="mt-2 ms-3">
-                                            <li>Shows all tasks that are not completed</li>
+                                            <li>Shows all tasks that are not completed or cancelled</li>
                                             <li>Includes tasks with "Pending" and "In Progress" status</li>
                                             <li>Status badges: ⏳ Pending, 🚧 In Progress</li>
+                                            <li>Cancelled tasks are excluded from this view</li>
                                             <li>Click on Task Manager to manage these tasks</li>
                                         </ul>
                                     </li>

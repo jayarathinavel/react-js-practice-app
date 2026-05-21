@@ -29,6 +29,7 @@ export default function TaskItem({ task, setTasks }) {
             case "pending": return "bg-warning text-dark";
             case "in-progress": return "bg-primary";
             case "completed": return "bg-success";
+            case "cancelled": return "bg-danger";
             default: return "bg-secondary";
         }
     };

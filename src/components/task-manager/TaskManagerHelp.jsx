@@ -79,6 +79,7 @@ export default function TaskManagerHelp() {
                                             <li><span className="badge bg-warning text-dark">Pending</span> - Task not started yet</li>
                                             <li><span className="badge bg-primary">In Progress</span> - Currently working on it</li>
                                             <li><span className="badge bg-success">Completed</span> - Task finished</li>
+                                            <li><span className="badge bg-danger">Cancelled</span> - Task cancelled or no longer needed</li>
                                         </ul>
                                     </li>
                                     <li className="mb-2">
@@ -102,8 +103,9 @@ export default function TaskManagerHelp() {
                                     <ol className="mb-0 mt-2">
                                         <li>Create tasks manually or sync from Work Log</li>
                                         <li>Update status as you work: Pending → In Progress → Completed</li>
+                                        <li>Mark tasks as Cancelled if they're no longer needed</li>
                                         <li>Edit title/description as needed (for manual tasks)</li>
-                                        <li>Delete completed tasks or keep them for reference</li>
+                                        <li>Delete completed/cancelled tasks or keep them for reference</li>
                                     </ol>
                                 </div>
 

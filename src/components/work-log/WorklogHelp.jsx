@@ -98,6 +98,7 @@ export default function WorklogHelp() {
                                             <li>⏳ Pending/Todo</li>
                                             <li>🚧 In Progress</li>
                                             <li>✅ Completed</li>
+                                            <li>❌ Cancelled</li>
                                         </ul>
                                     </li>
                                     <li className="mb-2">

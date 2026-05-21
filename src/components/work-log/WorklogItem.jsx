@@ -195,6 +195,9 @@ export default function WorklogItem({ worklog, setWorklogs, tasks, setTasks }) {
                 case "todo":
                     emoji = " ⏳";
                     break;
+                case "cancelled":
+                    emoji = " ❌";
+                    break;
                 default:
                     continue;
             }

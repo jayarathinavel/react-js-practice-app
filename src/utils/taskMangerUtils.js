@@ -30,8 +30,8 @@ export function sortTasks(tasks, sortBy) {
                 return titleA.localeCompare(titleB);
             });
         case 'status':
-            // Order: pending -> in-progress -> completed
-            const statusOrder = { 'pending': 1, 'in-progress': 2, 'completed': 3 };
+            // Order: pending -> in-progress -> completed -> cancelled
+            const statusOrder = { 'pending': 1, 'in-progress': 2, 'completed': 3, 'cancelled': 4 };
             return tasksCopy.sort((a, b) => {
                 return (statusOrder[a.status] || 999) - (statusOrder[b.status] || 999);
             });
@@ -43,7 +43,7 @@ export function sortTasks(tasks, sortBy) {
 /**
  * Filter tasks based on status
  * @param {Array} tasks - Array of tasks to filter
- * @param {string} filterStatus - Filter option: 'all', 'pending', 'in-progress', 'completed', 'hide-completed'
+ * @param {string} filterStatus - Filter option: 'all', 'pending', 'in-progress', 'completed', 'cancelled', 'hide-completed'
  * @returns {Array} Filtered tasks
  */
 export function filterTasks(tasks, filterStatus) {
@@ -56,6 +56,8 @@ export function filterTasks(tasks, filterStatus) {
             return tasks.filter(task => task.status === 'in-progress');
         case 'completed':
             return tasks.filter(task => task.status === 'completed');
+        case 'cancelled':
+            return tasks.filter(task => task.status === 'cancelled');
         case 'hide-completed':
             return tasks.filter(task => task.status !== 'completed');
         default:

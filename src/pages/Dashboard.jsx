@@ -38,8 +38,8 @@ export default function Dashboard() {
         api.get('/work-log')
       ]);
       
-      // Filter non-completed tasks
-      const filteredTasks = tasksRes.data.filter(task => task.status !== 'completed');
+      // Filter non-completed and non-cancelled tasks
+      const filteredTasks = tasksRes.data.filter(task => task.status !== 'completed' && task.status !== 'cancelled');
       
       // Get today's date in YYYY-MM-DD format
       const today = new Date();
@@ -145,11 +145,17 @@ export default function Dashboard() {
                     tasks.map(t => (
                       <li key={t.id} className="list-group-item d-flex align-items-center">
                         <span className="me-2">
-                          {t.status === 'in-progress' ? '🚧' : '⏳'}
+                          {t.status === 'in-progress' ? '🚧' : t.status === 'cancelled' ? '❌' : '⏳'}
                         </span>
                         <span className="flex-grow-1">{t.title}</span>
-                        <span className={`badge ${t.status === 'in-progress' ? 'bg-primary' : 'bg-warning text-dark'}`}>
-                          {t.status === 'in-progress' ? 'In Progress' : 'Pending'}
+                        <span className={`badge ${
+                          t.status === 'in-progress' ? 'bg-primary' :
+                          t.status === 'cancelled' ? 'bg-danger' :
+                          'bg-warning text-dark'
+                        }`}>
+                          {t.status === 'in-progress' ? 'In Progress' :
+                           t.status === 'cancelled' ? 'Cancelled' :
+                           'Pending'}
                         </span>
                       </li>
                     ))
