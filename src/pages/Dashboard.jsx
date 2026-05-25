@@ -46,7 +46,10 @@ export default function Dashboard() {
       setAllTasks(tasksRes.data);
       
       // Filter non-completed and non-cancelled tasks for pending tasks section
-      const filteredTasks = tasksRes.data.filter(task => task.status !== 'completed' && task.status !== 'cancelled');
+      // Sort by created date, newest first
+      const filteredTasks = tasksRes.data
+        .filter(task => task.status !== 'completed' && task.status !== 'cancelled')
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       
       // Get today's date in YYYY-MM-DD format
       const today = new Date();

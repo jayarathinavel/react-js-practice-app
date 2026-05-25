@@ -105,7 +105,7 @@ export function parseTasksFromTodo(todoText) {
 
 /**
  * Formats markdown text for clipboard with proper bullets and emojis
- * Converts markdown list items to plain text with bullets
+ * Converts markdown list items to plain text with bullets while preserving indentation (tabs)
  * @param {string} text - The markdown text to format
  * @param {Array} tasks - Optional array of tasks to include status emojis
  * @returns {string} - Formatted text for clipboard
@@ -123,14 +123,19 @@ export function formatMarkdownForClipboard(text, tasks = []) {
       continue
     }
 
+    // Extract leading whitespace (preserve tabs and spaces as-is)
+    const leadingWhitespaceMatch = line.match(/^(\s*)/)
+    const indentStr = leadingWhitespaceMatch ? leadingWhitespaceMatch[1] : ""
+    const indent = line.search(/\S/)
+
     // Check for unordered list markers (-, *, •)
     const unorderedMatch = trimmed.match(/^[-*•]\s+(.+)$/)
     if (unorderedMatch) {
       const content = unorderedMatch[1]
       
-      // Check if this task has a status emoji
+      // Check if this task has a status emoji (only for top-level items)
       let emoji = ""
-      if (tasks.length > 0) {
+      if (tasks.length > 0 && indent === 0) {
         const task = tasks.find(t => {
           const normalizedTaskTitle = t.title.trim().toLowerCase()
           const normalizedContent = content.trim().toLowerCase()
@@ -156,7 +161,7 @@ export function formatMarkdownForClipboard(text, tasks = []) {
         }
       }
       
-      formattedLines.push(`• ${content}${emoji}`)
+      formattedLines.push(`${indentStr}- ${content}${emoji}`)
       continue
     }
 
@@ -165,12 +170,12 @@ export function formatMarkdownForClipboard(text, tasks = []) {
     if (orderedMatch) {
       const number = orderedMatch[1]
       const content = orderedMatch[2]
-      formattedLines.push(`${number}. ${content}`)
+      formattedLines.push(`${indentStr}${number}. ${content}`)
       continue
     }
 
-    // Regular text
-    formattedLines.push(trimmed)
+    // Regular text - preserve original line with indentation
+    formattedLines.push(line)
   }
 
   return formattedLines.join("\n")
