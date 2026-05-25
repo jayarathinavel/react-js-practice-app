@@ -20,9 +20,9 @@ export function sortTasks(tasks, sortBy) {
     
     switch (sortBy) {
         case 'newest':
-            return tasksCopy.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            return tasksCopy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         case 'oldest':
-            return tasksCopy.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+            return tasksCopy.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
         case 'title':
             return tasksCopy.sort((a, b) => {
                 const titleA = (a.title || '').toLowerCase();

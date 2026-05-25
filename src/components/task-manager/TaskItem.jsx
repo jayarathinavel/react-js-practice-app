@@ -92,7 +92,7 @@ export default function TaskItem({ task, setTasks, isHighlighted, setHighlighted
 
                 <div className="d-flex justify-content-between align-items-center mt-3">
                     <small className="text-secondary">
-                        Updated: {new Date(task.updatedAt).toLocaleString()}
+                        Created: {new Date(task.createdAt).toLocaleString()} • Updated: {new Date(task.updatedAt).toLocaleString()}
                     </small>
                     {
                         isWorklogTask ? (
@@ -133,6 +133,7 @@ TaskItem.propTypes = {
         description: PropTypes.string,
         status: PropTypes.string.isRequired,
         reference: PropTypes.string,
+        createdAt: PropTypes.string.isRequired,
         updatedAt: PropTypes.string.isRequired,
     }).isRequired,
     setTasks: PropTypes.func.isRequired,

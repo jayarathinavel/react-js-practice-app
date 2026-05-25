@@ -151,6 +151,7 @@ TaskList.propTypes = {
             title: PropTypes.string,
             description: PropTypes.string,
             status: PropTypes.string,
+            createdAt: PropTypes.string,
             updatedAt: PropTypes.string,
         })
     ).isRequired,
